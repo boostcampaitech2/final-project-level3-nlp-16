@@ -52,8 +52,9 @@ def train(
     model.to(device)
     
     # Tokenize Titles
-    df = pd.read_csv(data_config["DATA_PATH"], sep="\t")
-    train_df, valid_df = train_test_split(df, test_size=0.2, stratify=df["category"])
+    raw_data = pd.read_csv(data_config["DATA_PATH"], sep="\t")
+    raw_data.dropna(inplace=True)
+    train_df, valid_df = train_test_split(raw_data, test_size=0.2, stratify=raw_data["category"])
     train_df.reset_index(drop=True, inplace=True)
     valid_df.reset_index(drop=True, inplace=True)
     

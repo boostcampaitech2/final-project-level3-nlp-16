@@ -11,7 +11,7 @@
 # BATCH_SIZE: Batch size for training
 # VAL_RATIO:  How many data to be used for validation checking
 
-DATA_PATH: "/opt/ml/final-project-level3-nlp-16/multimodal-clf/data"
+DATA_PATH: "/opt/ml/final-project-level3-nlp-16/data"
 DATASET: "BUNJANG"
 NUM_CLASSES: 15
 IMG_SIZE: 224

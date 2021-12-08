@@ -52,8 +52,8 @@ def train(
     model.to(device)
     
     # Tokenize Titles
-    df = pd.read_csv(data_config["TRAIN_DATA_PATH"])
-    train_df, valid_df = train_test_split(df, test_size=0.2, stratify=df["label"])
+    df = pd.read_csv(data_config["DATA_PATH"], sep="\t")
+    train_df, valid_df = train_test_split(df, test_size=0.2, stratify=df["category"])
     train_df.reset_index(drop=True, inplace=True)
     valid_df.reset_index(drop=True, inplace=True)
     
@@ -149,10 +149,7 @@ if __name__ == "__main__":
     model_config = read_yaml(cfg=args.model)
     data_config = read_yaml(cfg=args.data)
 
-    # TODO: 데이터셋 경로 정리하기
-    data_config["TRAIN_DATA_PATH"] = os.path.join(data_config["DATA_PATH"], "train.csv")
-    data_config["TEST_DATA_PATH"] = os.path.join(data_config["DATA_PATH"], "test.csv")
-
+    data_config["DATA_PATH"] = os.path.join(data_config["DATA_PATH"], "data.tsv")
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     log_dir = "exp/latest"

@@ -3,6 +3,7 @@ input_channel: 3
 depth_multiple: 1.0
 width_multiple: 1.0
 
+txt_backbone: "klue/bert-base"
 img_backbone:
     # [repeat, module, args]
     [
@@ -30,5 +31,3 @@ img_backbone:
         [1, Conv, [1280, 1, 1]],
         [1, Flatten, []],
     ]
-
-txt_backbone: "klue/bert-base"

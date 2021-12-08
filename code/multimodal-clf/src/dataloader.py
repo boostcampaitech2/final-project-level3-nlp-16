@@ -26,7 +26,6 @@ with open('dict_label_to_num', 'rb') as f:
 
 class TrainDataset(torch.utils.data.Dataset):
     def __init__(self, config: Dict[str, Any], dataframe, tokenized_txt):
-        data_path=config["TRAIN_DATA_PATH"]
         dataset_name=config["DATASET"]
         img_size=config["IMG_SIZE"]
         transform_train=config["AUG_TRAIN"]
@@ -43,7 +42,7 @@ class TrainDataset(torch.utils.data.Dataset):
         )(dataset=dataset_name, img_size=img_size, **transform_train_params)
 
         self.tokenized_txt = tokenized_txt
-        self.labels = list(self.dataframe["label"].apply(lambda x: _dict_label_to_num[str(x)]))
+        self.labels = list(self.dataframe["category"].apply(lambda x: _dict_label_to_num[str(x)]))
 
 
     def __getitem__(self, idx):
@@ -62,7 +61,6 @@ class TrainDataset(torch.utils.data.Dataset):
 
 class TestDataset(torch.utils.data.Dataset):
     def __init__(self, config: Dict[str, Any], dataframe, tokenized_txt):
-        data_path=config["TEST_DATA_PATH"]
         dataset_name=config["DATASET"]
         img_size=config["IMG_SIZE"]
         transform_test=config["AUG_TEST"]
@@ -79,7 +77,7 @@ class TestDataset(torch.utils.data.Dataset):
         )(dataset=dataset_name, img_size=img_size, **transform_test_params)
 
         self.tokenized_txt = tokenized_txt
-        self.labels = list(self.dataframe["label"].apply(lambda x: _dict_label_to_num[str(x)]))
+        self.labels = list(self.dataframe["category"].apply(lambda x: _dict_label_to_num[str(x)]))
 
 
     def __getitem__(self, idx):

@@ -163,4 +163,9 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
+# multimodal-clf
+code/multimodal-clf/exp
+code/multimodal-clf/wandb
+data/imgs
+
 # End of https://www.toptal.com/developers/gitignore/api/python

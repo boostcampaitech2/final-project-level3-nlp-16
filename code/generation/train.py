@@ -51,7 +51,7 @@ def main():
     model.train()
 
     if data_args.dataset_type == "cosine":
-        tag_dataset = create_data_cosine(data_args.dataset, data_args.cosine_rate)
+        tag_dataset = create_data_cosine(data_args.dataset_name, data_args.cosine_rate)
     else:
         tag_dataset = create_data_normal(data_args.dataset_name)
 

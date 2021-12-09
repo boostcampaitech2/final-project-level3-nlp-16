@@ -39,7 +39,7 @@ class MultimodalCLF(nn.Module):
         data,
         ) -> torch.Tensor:
         """Forward."""
-        img_output = self.img_model(data["img"])
+        img_output = self.img_model(data["pixel_values"])
         txt_outputs = self.txt_model(
             input_ids=data["input_ids"],
             attention_mask=data["attention_mask"],

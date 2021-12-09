@@ -8,22 +8,22 @@ import os
 from datetime import datetime
 from typing import Any, Dict, Tuple, Union
 import yaml
+from PIL import Image
+from io import BytesIO
 
 import torch
 import torch.nn as nn
-import torch.optim as optim
-from transformers import AutoTokenizer
+from torch.utils.data import DataLoader
 
 import wandb
-import pandas as pd
-from sklearn.model_selection import train_test_split
+from transformers import AutoTokenizer
+from datasets import load_dataset, DatasetDict
 
-from src.dataloader import TrainDataset, TestDataset, get_dataloader
+
 from src.model import MultimodalCLF
 from src.trainer import TorchTrainer
 from src.utils.common import read_yaml, seed_everything
 from src.utils.torch_utils import check_runtime, model_info
-
 
 
 def train(
@@ -50,37 +50,113 @@ def train(
             torch.load(model_path, map_location=device)
         )
     model.to(device)
-    
-    # Tokenize Titles
-    raw_data = pd.read_csv(data_config["DATA_PATH"], sep="\t")
-    raw_data.dropna(inplace=True)
-    train_df, valid_df = train_test_split(raw_data, test_size=0.2, stratify=raw_data["category"])
-    train_df.reset_index(drop=True, inplace=True)
-    valid_df.reset_index(drop=True, inplace=True)
-    
-    # TODO: max_length 추가하기
-    tokenizer = AutoTokenizer.from_pretrained(model_config["txt_backbone"])
-    train_tokenized_titles = tokenizer(
-        list(train_df["title"]),
-        return_tensors="pt",
-        max_length=32,
-        padding="max_length",
-        truncation="only_first"
-        )
-    valid_tokenized_titles = tokenizer(
-        list(valid_df["title"]),
-        return_tensors="pt",
-        max_length=32,
-        padding="max_length",
-        truncation="only_first"
-        )
-    
-    # Create dataset
-    train_dataset = TrainDataset(data_config, train_df, train_tokenized_titles)
-    valid_dataset = TestDataset(data_config, valid_df, valid_tokenized_titles)
 
+    # Load dataset
+    dataset = load_dataset(data_config["DATA_PATH"], use_auth_token=True)
+    dataset = dataset["train"].filter(lambda x: x["img_bytes"] != b"") # 이미지 없는 데이터 제외
+    dataset = dataset.remove_columns(["pid","description","tag"])
+
+    train_valid = dataset.train_test_split(test_size=0.2) # train valid split
+    datasets = DatasetDict(
+        {
+            "train": train_valid["train"],
+            "valid": train_valid["test"],
+        }
+    )
+
+    # Load image transforms
+    transform_train_params=data_config["AUG_TRAIN_PARAMS"]
+    if not transform_train_params:
+        transform_train_params = dict()
+    train_transform = getattr(
+        __import__("src.augmentation.policies", fromlist=[""]),
+        data_config["AUG_TRAIN"],
+    )(img_size=data_config["IMG_SIZE"], **transform_train_params)
+
+    valid_transform = getattr(
+        __import__("src.augmentation.policies", fromlist=[""]),
+        data_config["AUG_TEST"],
+    )(img_size=data_config["IMG_SIZE"])
+
+    # Load text tokenizer
+    tokenizer = AutoTokenizer.from_pretrained(model_config["txt_backbone"])
+
+    def bytes_to_pil(b):
+        return Image.open(BytesIO(b)).convert('RGB')
+
+    def text_to_token(text):
+        return tokenizer(text, return_tensors="pt", max_length=32, padding="max_length", truncation="only_first")
+        
+    def apply_train_transforms(example_batch):
+        # apply image transform
+        example_batch["pixel_values"] = [
+            train_transform(bytes_to_pil(b)) for b in example_batch.pop("img_bytes")
+        ]
+
+        # apply text tokenizer
+        for key, val in text_to_token(example_batch.pop("title")).items():
+            example_batch[key] = val
+        return example_batch
+
+    def apply_valid_transforms(example_batch):
+        # apply image transform
+        example_batch["pixel_values"] = [
+            valid_transform(bytes_to_pil(b)) for b in example_batch.pop("img_bytes")
+        ]
+
+        # apply text tokenizer
+        for key, val in text_to_token(example_batch.pop("title")).items():
+            example_batch[key] = val
+        return example_batch
+    
     # Create dataloader
-    train_dl, valid_dl = get_dataloader(train_dataset, valid_dataset, data_config["BATCH_SIZE"])
+    train_loader = DataLoader(
+        dataset=datasets["train"].with_transform(apply_train_transforms),
+        pin_memory=(torch.cuda.is_available()),
+        shuffle=True,
+        batch_size=data_config["TRAIN_BATCH_SIZE"],
+        num_workers=10,
+        drop_last=True
+    )
+    valid_loader = DataLoader(
+        dataset=datasets["valid"].with_transform(apply_valid_transforms),
+        pin_memory=(torch.cuda.is_available()),
+        shuffle=False,
+        batch_size=data_config["TRAIN_BATCH_SIZE"],
+        num_workers=5,
+    )
+
+
+    # # Tokenize Titles
+    # raw_data = pd.read_csv(data_config["DATA_PATH"], sep="\t")
+    # raw_data.dropna(inplace=True)
+    # train_df, valid_df = train_test_split(raw_data, test_size=0.2, stratify=raw_data["category"])
+    # train_df.reset_index(drop=True, inplace=True)
+    # valid_df.reset_index(drop=True, inplace=True)
+    
+    # # TODO: max_length 추가하기
+    # tokenizer = AutoTokenizer.from_pretrained(model_config["txt_backbone"])
+    # train_tokenized_titles = tokenizer(
+    #     list(train_df["title"]),
+    #     return_tensors="pt",
+    #     max_length=32,
+    #     padding="max_length",
+    #     truncation="only_first"
+    #     )
+    # valid_tokenized_titles = tokenizer(
+    #     list(valid_df["title"]),
+    #     return_tensors="pt",
+    #     max_length=32,
+    #     padding="max_length",
+    #     truncation="only_first"
+    #     )
+    
+    # # Create dataset
+    # train_dataset = TrainDataset(data_config, train_df, train_tokenized_titles)
+    # valid_dataset = TestDataset(data_config, valid_df, valid_tokenized_titles)
+
+    # # Create dataloader
+    # train_dl, valid_dl = get_dataloader(train_dataset, valid_dataset, data_config["BATCH_SIZE"])
 
     # Create optimizer, scheduler, criterion
     optimizer = torch.optim.SGD(
@@ -89,7 +165,7 @@ def train(
     scheduler = torch.optim.lr_scheduler.OneCycleLR(
         optimizer=optimizer,
         max_lr=data_config["INIT_LR"],
-        steps_per_epoch=len(train_dl),
+        steps_per_epoch=len(train_loader),
         epochs=data_config["EPOCHS"],
         pct_start=0.05,
     )
@@ -121,15 +197,15 @@ def train(
 
     # Training
     best_acc, best_f1 = trainer.train(
-        train_dataloader=train_dl,
+        train_dataloader=train_loader,
         n_epoch=data_config["EPOCHS"],
-        val_dataloader=valid_dl,
+        val_dataloader=valid_loader,
     )
 
     # Evaluation with test set
     model.load_state_dict(torch.load(model_path))
     test_loss, test_f1, test_acc, test_top3_f1, test_top3_acc = trainer.test(
-        model=model, test_dataloader=valid_dl
+        model=model, test_dataloader=valid_loader
     )
     return test_loss, test_f1, test_acc, test_top3_f1, test_top3_acc
 
@@ -143,14 +219,13 @@ if __name__ == "__main__":
         help="model config"
     )
     parser.add_argument(
-        "--data", default="configs/data/bunjang.yaml", type=str, help="data config"
+        "--data", default="configs/data/second-hand-goods.yaml", type=str, help="data config"
     )
     args = parser.parse_args()
 
     model_config = read_yaml(cfg=args.model)
     data_config = read_yaml(cfg=args.data)
 
-    data_config["DATA_PATH"] = os.path.join(data_config["DATA_PATH"], "data.tsv")
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     log_dir = "exp/latest"
@@ -159,7 +234,6 @@ if __name__ == "__main__":
         new_log_dir = os.path.dirname(log_dir) + '/' + modified.strftime("%Y-%m-%d_%H-%M-%S")
         os.rename(log_dir, new_log_dir)
     os.makedirs(log_dir, exist_ok=True)
-
 
     seed_everything(42)
     os.environ["TOKENIZERS_PARALLELISM"] = "False"

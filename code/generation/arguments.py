@@ -24,8 +24,17 @@ class DataTrainingArguments:
     """
 
     dataset_name: Optional[str] = field(
-        default="../data/csv_data",
+        default="../../data/raw_csv_data",
         metadata={"help": "The name of the dataset to use."},
+    )
+
+    dataset_type: str = field(
+        default="cosine",
+        metadata={"help": "metric to extract description [normal, cosine]"},
+    )
+
+    cosine_rate: float = field(
+        default=0.3, metadata={"help": "rate to compare with cosine similarity"}
     )
 
 

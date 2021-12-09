@@ -13,9 +13,8 @@ from arguments import (
 )
 from data import CustomDataset
 from preprocess import (
-    create_tagwholeset,
-    create_data_with_passage,
-    create_data_for_all_data,
+    create_data_normal,
+    create_data_cosine,
 )
 
 
@@ -50,7 +49,12 @@ def main():
     model = GPT2LMHeadModel.from_pretrained(model_args.model_name_or_path)
     model.resize_token_embeddings(len(tokenizer))
     model.train()
-    tag_dataset = create_data_with_passage(data_args.dataset_name)
+
+    if data_args.dataset_type == "cosine":
+        tag_dataset = create_data_cosine(data_args.dataset, data_args.cosine_rate)
+    else:
+        tag_dataset = create_data_normal(data_args.dataset_name)
+
     dataset = CustomDataset(tag_dataset["data"].tolist(), tokenizer)
     trainer = Trainer(
         model=model,

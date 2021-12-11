@@ -11,7 +11,7 @@
 # BATCH_SIZE: Batch size for training
 # VAL_RATIO:  How many data to be used for validation checking
 
-DATA_PATH: "nlprime/second-hand-goods"
+DATA_PATH: "nlprime/secondhand-goods"
 NUM_CLASSES: 15
 IMG_SIZE: 224
 AUG_TRAIN: "randaugment_train"

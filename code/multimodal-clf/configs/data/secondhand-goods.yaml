@@ -11,14 +11,14 @@
 # BATCH_SIZE: Batch size for training
 # VAL_RATIO:  How many data to be used for validation checking
 
-DATA_PATH: "/opt/ml/final-project-level3-nlp-16/data"
-DATASET: "BUNJANG"
+DATA_PATH: "nlprime/secondhand-goods"
 NUM_CLASSES: 15
 IMG_SIZE: 224
 AUG_TRAIN: "randaugment_train"
 AUG_TEST: "simple_augment_test"
 AUG_TRAIN_PARAMS: 
-BATCH_SIZE: 32
+TRAIN_BATCH_SIZE: 16
+VALID_BATCH_SIZE: 32
 EPOCHS: 50
 VAL_RATIO: 0.0
 INIT_LR: 0.001

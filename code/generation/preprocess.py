@@ -2,19 +2,14 @@ import os
 import re
 import pandas as pd
 
-from arguments import DataTrainingArguments
 from datasets import load_dataset
 from numpy import dot
 from numpy.linalg import norm
 from tqdm import tqdm
-from transformers import AutoTokenizer, HfArgumentParser
+from transformers import AutoTokenizer
 
 
-def create_preprocess_data():
-    parser = HfArgumentParser([DataTrainingArguments])
-    ([data_args]) = parser.parse_args_into_dataclasses()
-
-    print(f"data is {data_args.dataset_name}")
+def create_preprocess_data(data_args):
     dataset = load_dataset(data_args.dataset_name, use_auth_token=True)
     dataset = dataset["train"]
 

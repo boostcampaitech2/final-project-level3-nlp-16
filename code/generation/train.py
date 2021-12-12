@@ -7,6 +7,7 @@ from transformers import (
 )
 from arguments import (
     ModelArguments,
+    DataTrainingArguments,
     TrainingArguments,
 )
 from data import CustomDataset
@@ -17,12 +18,14 @@ def main():
     parser = HfArgumentParser(
         (
             ModelArguments,
+            DataTrainingArguments,
             TrainingArguments,
         )
     )
-    (model_args, training_args) = parser.parse_args_into_dataclasses()
+    (model_args, data_args, training_args) = parser.parse_args_into_dataclasses()
 
     print(f"backbone model is {model_args.model_name_or_path}")
+    print(f"data is {data_args.dataset_name}")
 
     set_seed(training_args.seed)
 
@@ -41,7 +44,7 @@ def main():
     model.resize_token_embeddings(len(tokenizer))
     model.train()
 
-    tag_dataset = create_preprocess_data()
+    tag_dataset = create_preprocess_data(data_args)
     dataset = CustomDataset(tag_dataset["data"].tolist(), tokenizer)
 
     trainer = Trainer(

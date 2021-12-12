@@ -17,9 +17,6 @@ from PIL import Image
 import pandas as pd
 import pickle
 
-from src.utils.data import weights_for_balanced_classes
-from src.utils.torch_utils import split_dataset_index
-
 
 with open('dict_label_to_num', 'rb') as f:
     _dict_label_to_num = pickle.load(f)

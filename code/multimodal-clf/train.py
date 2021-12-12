@@ -84,6 +84,7 @@ def train(
     def bytes_to_pil(b):
         return Image.open(BytesIO(b)).convert('RGB')
 
+    # # TODO: max_length 추가하기
     def text_to_token(text):
         return tokenizer(text, return_tensors="pt", max_length=32, padding="max_length", truncation="only_first")
         
@@ -126,41 +127,9 @@ def train(
         num_workers=5,
     )
 
-
-    # # Tokenize Titles
-    # raw_data = pd.read_csv(data_config["DATA_PATH"], sep="\t")
-    # raw_data.dropna(inplace=True)
-    # train_df, valid_df = train_test_split(raw_data, test_size=0.2, stratify=raw_data["category"])
-    # train_df.reset_index(drop=True, inplace=True)
-    # valid_df.reset_index(drop=True, inplace=True)
-    
-    # # TODO: max_length 추가하기
-    # tokenizer = AutoTokenizer.from_pretrained(model_config["txt_backbone"])
-    # train_tokenized_titles = tokenizer(
-    #     list(train_df["title"]),
-    #     return_tensors="pt",
-    #     max_length=32,
-    #     padding="max_length",
-    #     truncation="only_first"
-    #     )
-    # valid_tokenized_titles = tokenizer(
-    #     list(valid_df["title"]),
-    #     return_tensors="pt",
-    #     max_length=32,
-    #     padding="max_length",
-    #     truncation="only_first"
-    #     )
-    
-    # # Create dataset
-    # train_dataset = TrainDataset(data_config, train_df, train_tokenized_titles)
-    # valid_dataset = TestDataset(data_config, valid_df, valid_tokenized_titles)
-
-    # # Create dataloader
-    # train_dl, valid_dl = get_dataloader(train_dataset, valid_dataset, data_config["BATCH_SIZE"])
-
     # Create optimizer, scheduler, criterion
-    optimizer = torch.optim.SGD(
-        model.parameters(), lr=data_config["INIT_LR"], momentum=0.9
+    optimizer = torch.optim.AdamW(
+        model.parameters(), lr=data_config["INIT_LR"]
     )
     scheduler = torch.optim.lr_scheduler.OneCycleLR(
         optimizer=optimizer,
@@ -219,7 +188,7 @@ if __name__ == "__main__":
         help="model config"
     )
     parser.add_argument(
-        "--data", default="configs/data/second-hand-goods.yaml", type=str, help="data config"
+        "--data", default="configs/data/secondhand-goods.yaml", type=str, help="data config"
     )
     args = parser.parse_args()
 

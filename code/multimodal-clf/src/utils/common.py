@@ -4,7 +4,6 @@ import numpy as np
 import random
 import torch
 import yaml
-from torchvision.datasets import ImageFolder, VisionDataset
 
 
 def read_yaml(cfg: Union[str, Dict[str, Any]]):
@@ -24,15 +23,3 @@ def seed_everything(seed) :
     torch.backends.cudnn.benchmark = False
     np.random.seed(seed)
     random.seed(seed)
-
-
-def get_label_counts(dataset_path: str):
-    """Counts for each label."""
-    if not dataset_path:
-        return None
-    td = ImageFolder(root=dataset_path)
-    # get label distribution
-    label_counts = [0] * len(td.classes)
-    for p, l in td.samples:
-        label_counts[l] += 1
-    return label_counts

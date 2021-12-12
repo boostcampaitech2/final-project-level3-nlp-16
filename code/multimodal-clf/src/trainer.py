@@ -21,7 +21,7 @@ from torch.utils.data.sampler import SequentialSampler, SubsetRandomSampler
 from tqdm import tqdm
 
 from src.utils.torch_utils import save_model
-
+from src.regularization import Perturbation, Regularization, RegParameters
 
 def _get_len_label_from_dataset(dataset: Dataset) -> int:
     """Get length of label from dataset.
@@ -100,6 +100,8 @@ class TorchTrainer:
         best_test_top3_f1 = -1.0
         label_list = [i for i in range(self.num_classes)]
 
+        reg_params = RegParameters()
+
         for epoch in range(n_epoch):
             running_loss, correct, top3_correct, total = 0.0, 0, 0, 0
             preds, top3_preds, gt = [], [], []
@@ -119,8 +121,32 @@ class TorchTrainer:
                 outputs = torch.squeeze(outputs)
                 loss = self.criterion(outputs, labels)
 
-                self.optimizer.zero_grad()
+                # Regularization by Maximizing Functional Entropies
+                expanded_outputs = Perturbation.get_expanded_logits(outputs, reg_params.n_samples)
 
+                inf_image = Perturbation.perturb_tensor(data["pixel_values"], reg_params.n_samples)
+                data["pixel_values"] = inf_image
+
+                handle = self.model.txt_model.pooler.register_forward_hook(
+                    Perturbation.perturb_tensor_hook
+                )
+                inf_output = self.model(data)
+                handle.remove()
+                
+                inf_loss = torch.nn.functional.binary_cross_entropy_with_logits(inf_output, expanded_outputs)
+                
+                gradients = torch.autograd.grad(inf_loss, [inf_image, Perturbation.txt_output], create_graph=True)
+                grads = [Regularization.get_batch_norm(gradients[k], loss=inf_loss,
+                                                        estimation=reg_params.estimation) for k in range(2)]
+
+                inf_scores = torch.stack(grads)
+                reg_term = Regularization.get_regularization_term(inf_scores, norm=reg_params.norm,
+                                                                    optim_method=reg_params.optim_method)
+                
+                loss += reg_params.lambda_ * reg_term
+                ####################
+
+                self.optimizer.zero_grad()
                 if self.scaler:
                     self.scaler.scale(loss).backward()
                     self.scaler.step(self.optimizer)

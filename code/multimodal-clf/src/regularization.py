@@ -50,6 +50,34 @@ class Perturbation:
         return tens
 
     @classmethod
+    def perturb_tensor_hook(cls, module, input: torch.Tensor, output: torch.Tensor, n_samples: int = 5, perturbation: bool = True) -> torch.Tensor:
+        """
+        Flatting the tensor, expanding it, perturbing and reconstructing to the original shape.
+        Note, this function assumes that the batch is the first dimension.
+        :param tens:
+        :param n_samples: times to perturb
+        :param perturbation: False - only duplicating the tensor
+        :return: tensor in the shape of [batch, samples * num_eval_samples]
+        """
+        output_dim = list(output.shape)
+
+        output = output.view(output.shape[0], -1)
+        output = output.repeat(1, n_samples)
+
+        output = output.view(output.shape[0] * n_samples, -1)
+
+        if perturbation:
+            output = cls._add_noise_to_tensor(output)
+
+        output_dim[0] *= n_samples
+
+        output = output.view(*output_dim)
+        output.requires_grad_()
+        cls.txt_output = output
+
+        return output
+
+    @classmethod
     def get_expanded_logits(cls, logits: torch.Tensor, n_samples: int, logits_flg: bool = True) -> torch.Tensor:
         """
         Perform Softmax and then expand the logits depends on the num_eval_samples
@@ -205,7 +233,7 @@ class RegParameters(object):
     This class controls all the regularization-related properties
     """
     def __init__(self, lambda_: float = 1e-10, norm: float = 2.0, estimation: str = 'ent',
-                 optim_method: str = 'max_ent', n_samples: int = 10, grad: bool = True):
+                 optim_method: str = 'max_ent', n_samples: int = 5, grad: bool = True):
         self.lambda_ = lambda_
         self.norm = norm
         self.estimation = estimation

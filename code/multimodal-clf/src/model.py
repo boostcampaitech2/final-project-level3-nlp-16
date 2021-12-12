@@ -31,16 +31,16 @@ class MultimodalCLF(nn.Module):
         self.txt_config = AutoConfig.from_pretrained(cfg["txt_backbone"])
         self.txt_model = AutoModel.from_pretrained(cfg["txt_backbone"])
 
-        # self.fc1 = nn.Linear(self.img_model_parser.out_channel + self.txt_config.hidden_size, 256, bias=True)
-        # self.fc2 = nn.Linear(256, 15, bias=True)
+        self.fc1 = nn.Linear(self.img_model_parser.out_channel + self.txt_config.hidden_size, 256, bias=True)
+        self.fc2 = nn.Linear(256, 15, bias=True)
 
-        self.img_classifier = nn.Linear(self.img_model_parser.out_channel, 15)
-        self.txt_classifier = nn.Linear(self.txt_config.hidden_size, 15)
-        self.label_classifier = nn.Linear(30, 15)
+        # self.img_classifier = nn.Linear(self.img_model_parser.out_channel, 15)
+        # self.txt_classifier = nn.Linear(self.txt_config.hidden_size, 15)
+        # self.label_classifier = nn.Linear(30, 15)
 
     def forward(
         self,
-        data,
+        data
         ) -> torch.Tensor:
         """Forward."""
         img_output = self.img_model(data["pixel_values"])
@@ -51,13 +51,15 @@ class MultimodalCLF(nn.Module):
         )
         txt_output = txt_outputs.pooler_output
 
-        # concat_output = torch.cat([img_output, txt_output], dim=1).contiguous()
-        # logits = F.relu(self.fc1(concat_output))
-        # logits = self.fc2(logits)
+        concat_output = torch.cat([img_output, txt_output], dim=1).contiguous()
+        logits = F.relu(self.fc1(concat_output))
+        logits = self.fc2(logits)
 
-        img_logits = self.img_classifier(img_output) # (batch, 15)
-        txt_logits = self.txt_classifier(txt_output) # (batch, 15)
-        logits = F.relu(self.label_classifier(torch.cat([img_logits, txt_logits], dim=1).contiguous()))
+        # img_logits = self.img_classifier(img_output) # (batch, 15)
+        # txt_logits = self.txt_classifier(txt_output) # (batch, 15)
+        # logits = F.relu(self.label_classifier(torch.cat([img_logits, txt_logits], dim=1).contiguous()))
+
+        # logits = (img_logits + txt_logits) / 2
 
         return logits
 

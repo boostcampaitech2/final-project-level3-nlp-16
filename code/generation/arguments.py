@@ -24,17 +24,22 @@ class DataTrainingArguments:
     """
 
     dataset_name: Optional[str] = field(
-        default="../../data/raw_csv_data",
+        default="nlprime/secondhand-goods",
         metadata={"help": "The name of the dataset to use."},
     )
 
-    dataset_type: str = field(
+    preprocess_type: str = field(
         default="cosine",
         metadata={"help": "metric to extract description [normal, cosine]"},
     )
 
     cosine_rate: float = field(
         default=0.3, metadata={"help": "rate to compare with cosine similarity"}
+    )
+
+    dataset_output_dir: Optional[str] = field(
+        default="./data/nlp_data",
+        metadata={"help": "directory that preprocessed data will be stored"},
     )
 
 

@@ -105,11 +105,10 @@ class TorchTrainer:
             preds, top3_preds, gt = [], [], []
             pbar = tqdm(enumerate(train_dataloader), total=len(train_dataloader))
             self.model.train()
-            for batch, (data, labels) in pbar:
+            for batch, data in pbar:
+                labels = data.pop("category").to(self.device)
                 for key in data.keys():
                     data[key] = data[key].to(self.device)
-                labels = labels.to(self.device)
-                # data, labels = data.to(self.device), labels.to(self.device)
 
                 if self.scaler:
                     with torch.cuda.amp.autocast():
@@ -220,10 +219,10 @@ class TorchTrainer:
         pbar = tqdm(enumerate(test_dataloader), total=len(test_dataloader))
         model.to(self.device)
         model.eval()
-        for batch, (data, labels) in pbar:
-            for item in data:
-                data[item] = data[item].to(self.device)
-            labels = labels.to(self.device)
+        for batch, data in pbar:
+            labels = data.pop("category").to(self.device)
+            for key in data.keys():
+                data[key] = data[key].to(self.device)
 
             if self.scaler:
                 with torch.cuda.amp.autocast():

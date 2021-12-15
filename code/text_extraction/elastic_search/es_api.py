@@ -13,13 +13,15 @@ import sys
 
 def load_config():
     config = configparser.ConfigParser()
-    config.read('./../config.ini')
+    # config.read('./../config.ini')
     
-    user = config["ES"]["USER"]
-    password = config["ES"]["PASSWORD"]
-    endpoint = config["ES"]["ENDPOINT"]
-    index_name = config["ES"]["INDEX"]
+    user = 'elastic'
+    password = "q391GEq6vSwrGf5Ykm0p67mB"
+    endpoint = "https://auto-tag.es.asia-northeast3.gcp.elastic-cloud.com:9243"
+    index_name = "auto_tag5"
 
+    # auto_tag5 = 검색시 whitespace
+    # auto_tag6 = 검색시 nori_tokenizer
     return user, password, endpoint, index_name
 
 
@@ -102,7 +104,13 @@ def es_make_index():
                     "nori_analyzer": {
                         "type": "custom",
                         "tokenizer": "korean_nori_tokenizer",
-                        "filter": ["nori_posfilter", "nori_readingform"]
+                        "filter": ["nori_posfilter", "nori_readingform", "lowercase"]
+                    },
+
+                    "white_analyzer":{
+                        "type": "custom",
+                        "tokenizer": "whitespace",
+                        "filter": ["lowercase"]
                     }
                 },
                 "filter": {
@@ -148,7 +156,7 @@ def es_make_index():
             "properties": {
                 "vocab": {
                     "type": "text",
-                    "analyzer": "whitespace",
+                    "analyzer": "white_analyzer",
                     "search_analyzer": "nori_analyzer"
                 }
             }

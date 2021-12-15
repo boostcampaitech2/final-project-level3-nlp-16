@@ -24,7 +24,7 @@ class DataTrainingArguments:
     """
 
     dataset_name: Optional[str] = field(
-        default="nlprime/secondhand-goods",
+        default="nlprime/secondhand-goods-small",
         metadata={"help": "The name of the dataset to use."},
     )
 

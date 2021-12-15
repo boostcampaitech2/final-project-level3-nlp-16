@@ -53,7 +53,7 @@ def cleaning(title, txt, hash_tag, stop_word_list):
     hash_tag = hash_tag.replace("\n", "")
     hash_tag = hash_tag.replace("\r", "")
     hash_tag = re.sub(r"[^\w\s]", "", hash_tag)
-    hash_tag = hash_tag.replace(" ", "<sep>")
+    hash_tag = hash_tag.replace(" ", ",")
     return title, txt_list, hash_tag
 
 
@@ -106,15 +106,14 @@ def create_data_cosine(dataset, output_dir, cosine_rate, stop_word_list):
         title_token = tokenizer.morphs(title)
         title_matrix = create_matrix(title_token, title_token)
         line_list = []
-        if len(text_line) > 1:
-            for line in text_line:
-                line_token = tokenizer.morphs(line)
-                title_line_matrix = create_matrix(title_token, line_token)
-                cosine_sim = cal_cosine_sim(title_matrix, title_line_matrix)
+        for line in text_line:
+            line_token = tokenizer.morphs(line)
+            title_line_matrix = create_matrix(title_token, line_token)
+            cosine_sim = cal_cosine_sim(title_matrix, title_line_matrix)
 
-                # if able to accept, preprocess the sentence and add to list
-                if cosine_sim > cosine_rate:
-                    line_list.append(line)
+            # if able to accept, preprocess the sentence and add to list
+            if cosine_sim > cosine_rate:
+                line_list.append(line)
 
         if len(line_list) > 0:
             text = ". ".join(line_list)

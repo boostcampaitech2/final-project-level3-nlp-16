@@ -1,4 +1,4 @@
-from elastic_search import es_api as es
+from .elastic_search import es_api as es
 from pprint import pprint as pp
 import re
 

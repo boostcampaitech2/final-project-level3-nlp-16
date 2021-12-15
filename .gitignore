@@ -168,4 +168,10 @@ code/multimodal-clf/exp
 code/multimodal-clf/wandb
 data/imgs
 
+# generation
+code/generation/output
+code/generation/data
+code/generation/wandb
+
 # End of https://www.toptal.com/developers/gitignore/api/python
+

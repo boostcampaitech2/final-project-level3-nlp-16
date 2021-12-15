@@ -6,3 +6,4 @@ pip install pandas
 pip install urllib
 pip install nltk
 pip install konlpy
+pip install elasticsearch

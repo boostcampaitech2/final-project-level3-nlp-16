@@ -5,3 +5,5 @@ tqdm
 pandas
 urllib
 elasticsearch
+pororo
+transformers

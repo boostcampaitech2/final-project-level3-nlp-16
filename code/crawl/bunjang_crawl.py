@@ -7,9 +7,10 @@ import urllib.request
 
 def make_csv_from_bunjang(save_dir, categories, number_item):
     for category in categories:
-        pages = number_item / 100 + 10
+        pages = int(number_item / 100 + 10)
         item_count = 0
         items = []
+        
         for page in tqdm(range(pages)):
             pid_list = []
             url = "https://api.bunjang.co.kr/api/1/find_v2.json?f_category_id={}&page={}&order=date&req_ref=category&stat_device=w&n=100&version=4".format(

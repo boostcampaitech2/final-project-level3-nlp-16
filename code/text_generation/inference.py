@@ -3,55 +3,69 @@ import re
 
 from datasets import load_dataset
 from konlpy.tag import Okt
-from transformers import AutoTokenizer, GPT2LMHeadModel
+from transformers import AutoTokenizer, AutoModelForCausalLM
 from numpy import dot
 from numpy.linalg import norm
 from nltk.tokenize import word_tokenize
 
-MODEL = "skt/kogpt2-base-v2"
+MODEL = "nlprime/hash-tag-generation"
 
 
-def inference(title, text):
-
-    tokenizer = AutoTokenizer.from_pretrained(
-        pretrained_model_name_or_path=MODEL,
-        max_len=1024,
-        padding="max_length",
-        add_special_tokens=True,
-        return_tensors="pt",
-        truncation=True,
-        bos_token="<s>",
-        eos_token="</s>",
-        unk_token="<unk>",
-        pad_token="<pad>",
-        mask_token="<mask>",
-        sep_token="<sep>",
-    )
-
-    model = GPT2LMHeadModel.from_pretrained(MODEL)
-    model.eval()
-
+def main():
     ## Cleaning input data
     stop_word = load_dataset("psrpsj/stop_words")
     stop_word_list = stop_word["train"]["word"]
+
+    title = "LG 15인치 노트북판매합니다"
+    text = "lg 15u530-lh10k lg 울트라북 판매합니다 ssd 업글로 인터넷속도 부팅속도 빠릅니다 밧데리 약2시간이상갑니다 자세한 사양은 사진에있으니 참고하세요"
+    exit_word = ""
+
+    while exit_word != "exit":
+        result = inference(title, text, stop_word_list)
+        print("Hash tag result : ", result)
+        exit_word = input("생성된 hash tag를 이용하시려면 exit를 입력하세요")
+
+
+def inference(title, text, stop_word_list):
+
+    tokenizer = AutoTokenizer.from_pretrained(MODEL, use_auth_token=True)
+
+    model = AutoModelForCausalLM.from_pretrained(MODEL, use_auth_token=True)
+    model.eval()
 
     # title
     title = re.sub(r"[^\w\s]", "", title)
 
     # text
-    text_list = text.split(".")
     result = []
-    for sentence in text_list:
-        sentence = re.sub(r"[^\w\s]", "", sentence)
-        sentence = sentence.lstrip()
-        stop_process = []
-        for word in word_tokenize(sentence):
-            if word not in stop_word_list:
-                stop_process.append(word)
-        text = " ".join(stop_process)
-        if not text.lower().startswith(("http", "www", "번개페이")):
-            result.append(text)
-    result = list(filter(None, result))
+    text = text.replace("\n", " ")
+    text = text.replace("\r", " ")
+    text = re.sub(r"[^\w\s]", "", text)
+    for word in word_tokenize(text):
+        if word not in stop_word_list:
+            result.append(word)
     text = " ".join(result)
 
     input_line = "<s>" + title + "<sep>" + text + "<sep>"
+
+    input_ids = tokenizer.encode(
+        input_line, add_special_tokens=True, return_tensors="pt"
+    )
+
+    output_sequence = model.generate(
+        input_ids=input_ids,
+        do_sample=True,
+        max_length=512,
+        num_return_sequences=1,
+    )
+
+    decode_output = tokenizer.decode(output_sequence[0], skip_special_tokens=True)
+    decode_output = decode_output[len(input_line) + 1 :]
+    decode_output = decode_output.split()
+    # decode_output = list(set(decode_output))
+
+    return decode_output
+
+
+if __name__ == "__main__":
+    main()

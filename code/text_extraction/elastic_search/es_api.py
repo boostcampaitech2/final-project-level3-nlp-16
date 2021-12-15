@@ -1,29 +1,20 @@
 import configparser
+from typing import final
 import requests
 import json
 from tqdm import tqdm
 from pprint import pprint as pp
-
+from elasticsearch import Elasticsearch
 import os
 import sys
 
-sys.path.append(
-    os.path.dirname(
-        os.path.abspath(
-            os.path.dirname(
-                os.path.abspath(os.path.dirname(os.path.abspath("__file__")))
-            )
-        )
-    )
-)
 
-from elasticsearch import Elasticsearch
-from config_file_read import read_config
 
 
 def load_config():
-    config = read_config()
-
+    config = configparser.ConfigParser()
+    config.read('./../config.ini')
+    
     user = config["ES"]["USER"]
     password = config["ES"]["PASSWORD"]
     endpoint = config["ES"]["ENDPOINT"]
@@ -52,7 +43,9 @@ def es_search(query):
         headers = headers, timeout=5)
     except requests.exceptions.RequestException as erra:
         print("es_search() Exception : ", erra)
-
+    except requests.exceptions.HTTPError as hter:
+        print("http Exception : ", hter)        
+        
     return res.json()
 
 

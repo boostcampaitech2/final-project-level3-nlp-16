@@ -46,7 +46,7 @@ class DataTrainingArguments:
 @dataclass
 class TrainingArguments(TrainingArguments):
 
-    output_dir: str = field(default="./output")
+    output_dir: str = field(default="./output/hash-tag-generator-small")
     num_train_epochs: int = field(
         default=10,
         metadata={"help": "Define the number of epoch to run during training"},

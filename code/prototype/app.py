@@ -1,20 +1,42 @@
 import streamlit as st
 import time
 import requests
+import io
+from PIL import Image
 
 from streamlit_lottie import st_lottie
 from streamlit_lottie import st_lottie_spinner
 
+from models.mmclf import MultimodalCLF, get_model, predict_from_multimodal, get_config
 
 st.set_page_config()
 title=''
 content=''
 st.title("당신도 중고왕이 될 수 있습니다!")
-title=st.text_input("제목을 입력해주세요.")
+
+
+clf_model = get_model()
+clf_config = get_config()
+
 custom_bg_img = st.file_uploader(
     "상품 이미지를 올려주세요!", 
-    type=["png", "jpg"]
+    type=["png", "jpg", "jpeg"]
 )
+
+if custom_bg_img:
+    image_bytes = custom_bg_img.getvalue()
+    image = Image.open(io.BytesIO(image_bytes))
+    st.image(image, caption='Uploaded Image')
+
+title=st.text_input("상품 제목을 입력해주세요.")
+
+if custom_bg_img and title:
+    st.write("Classifying...")
+
+    labels = predict_from_multimodal(model=clf_model, image=image, title=title, config=clf_config)
+    st.write(labels)
+
+
 
 def load_lottieurl(url: str):
     r = requests.get(url)

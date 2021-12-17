@@ -13,15 +13,15 @@ import sys
 
 def load_config():
     config = configparser.ConfigParser()
-    # config.read('./../config.ini')
+    config.read('.config.ini')
     
-    user = 'elastic'
-    password = "q391GEq6vSwrGf5Ykm0p67mB"
-    endpoint = "https://auto-tag.es.asia-northeast3.gcp.elastic-cloud.com:9243"
-    index_name = "auto_tag5"
+    user = config['ES']['USER']
+    password = config['ES']['PASSWORD']
+    endpoint = config['ES']['ENDPOINT']
+    index_name = "auto_tag2"
 
-    # auto_tag5 = 검색시 whitespace
-    # auto_tag6 = 검색시 nori_tokenizer
+    # auto_tag = 검색시 nori_tokenizer
+    # auto_tag2 = 검색시 whitespace
     return user, password, endpoint, index_name
 
 
@@ -29,20 +29,19 @@ def es_search(query):
     es_user, es_password, es_endpoint, es_index_name = load_config()
     session = requests.Session()
     session.auth = (es_user, es_password)
-    headers = {"Content-Type": "application/json; charset=utf-8"}
-    body = {
-        "query":{
-            "match":{
-                "vocab": query
-            }
-        },
-        "explain": "true"
-    }
+    # headers = {"Content-Type": "application/json; charset=utf-8"}
+    # body = {
+    #     "query": {
+    #         "multi_match" : {
+    #             "query": query,
+    #             "type":       "cross_fields",
+    #             "fields": [ "vocab", "vocab.english" ] 
+    #             }
+    #         }
+    #     }
 
     try:
-        res = session.get(es_endpoint + "/" + es_index_name + "/_search?q=" + query, 
-        data=json.dumps(body, ensure_ascii=False).encode("utf-8"),
-        headers = headers, timeout=5)
+        res = session.get(es_endpoint + "/" + es_index_name + "/_search?q={}&explain=true&size=10000".format(query))
     except requests.exceptions.RequestException as erra:
         print("es_search() Exception : ", erra)
     except requests.exceptions.HTTPError as hter:
@@ -90,8 +89,6 @@ def es_make_index():
 
     index_settings = {
         "settings": {
-            "number_of_shards": 5,
-            "number_of_replicas": 1,
             "analysis": {
                 "tokenizer": {
                     "korean_nori_tokenizer": {
@@ -177,3 +174,5 @@ def es_make_index():
 
     print(res)
     print("ElasticSearch make Index Finished")
+
+

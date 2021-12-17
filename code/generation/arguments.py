@@ -24,31 +24,26 @@ class DataTrainingArguments:
     """
 
     dataset_name: Optional[str] = field(
-        default="nlprime/secondhand-goods-small",
+        default="../../data/raw_csv_data",
         metadata={"help": "The name of the dataset to use."},
     )
 
-    preprocess_type: str = field(
+    dataset_type: str = field(
         default="cosine",
         metadata={"help": "metric to extract description [normal, cosine]"},
     )
 
     cosine_rate: float = field(
-        default=0.1, metadata={"help": "rate to compare with cosine similarity"}
-    )
-
-    dataset_output_dir: Optional[str] = field(
-        default="./data/nlp_data",
-        metadata={"help": "directory that preprocessed data will be stored"},
+        default=0.3, metadata={"help": "rate to compare with cosine similarity"}
     )
 
 
 @dataclass
 class TrainingArguments(TrainingArguments):
 
-    output_dir: str = field(default="./output/hash-tag-generator-small")
+    output_dir: str = field(default="./output")
     num_train_epochs: int = field(
-        default=10,
+        default=3,
         metadata={"help": "Define the number of epoch to run during training"},
     )
     per_device_train_batch_size: int = field(default=32)

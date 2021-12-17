@@ -7,3 +7,5 @@ urllib
 elasticsearch
 pororo
 transformers
+nltk
+konlpy

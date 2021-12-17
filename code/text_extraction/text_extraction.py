@@ -1,20 +1,38 @@
-from .elastic_search import es_api as es
-from pprint import pprint as pp
+import es_api as es
+from hanspell import spell_checker
 import re
-
 
 def extract_text(query):
     
     processed_query = preprocess_query(query)
-    es_result = es.es_search(processed_query)
+    spelled_query = check_query_spell(processed_query)
+    es_result = es.es_search(spelled_query)
     idf_values = get_idf_values(es_result)
-    tf_idf_values = get_tf_idf_values(processed_query, idf_values)
-
+    tf_idf_values = get_tf_idf_values(spelled_query, idf_values)
     extracted_text = sorted(tf_idf_values.items(), key=(lambda x: x[1]), reverse=True)
+    result = make_result(extracted_text)
     
-    return extracted_text
+    return result
+
+def make_result(extracted_text):
+    result = []
+    for key,value in extracted_text[:3]:
+        result.append(key)
+    return result
+
+def check_query_spell(query):
+    spelled_query = spell_checker.check(query)
+    if spelled_query[0]:
+        return spelled_query[2]
+    return query
 
 def preprocess_query(query):
+
+    query = re.sub(r"[^\w\s]", "", query)
+    query = query.replace("\n", " ")
+    query = query.replace("\r", " ")
+    query = query.replace(",", " ")
+    query = query.replace(".", " ")
 
     return query
 
@@ -40,7 +58,19 @@ def get_tf_idf_values(query, idf_values):
     
     return idf_values
 
+# def test_spelled_query(query):
+#     spelled_query = spell_checker.check(query)
 
-if __name__ == '__main__':
-    ex_query = "갤럭시 S8 64기가 상태굿 ㅡ중고폰3977 갤럭시s8 64기가 오키드그레이 상태굿 최초 LG개통했으나 모든유심다됩니다 선불.알뜰유심다됩니다 화면에 사진처럼 잔상조금있어 싸게판매합니다 ㅡ사진참조 터치및 모든 기능이상없이 작동잘됩니다 직거래는 인천 1호선 주안역입니다 택배거래도 가능합니다 이0ㅡ29오오ㅡ99이사"
-    extract_text(ex_query)
+#     if spelled_query[0]:
+#         es_result = es.es_search(spelled_query[2])
+#     else:
+#         es_result = es.es_search(query)
+
+#     idf_values = get_idf_values(es_result)
+#     if spelled_query[0]:
+#         tf_idf_values = get_tf_idf_values(spelled_query[2], idf_values)
+#     else:
+#         tf_idf_values = get_tf_idf_values(query, idf_values)
+#     extracted_spelled_text = sorted(tf_idf_values.items(), key=(lambda x: x[1]), reverse=True)
+
+#     return extracted_spelled_text

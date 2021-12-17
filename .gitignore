@@ -169,4 +169,10 @@ code/multimodal-clf/wandb
 data/imgs
 code/prototype/models/mmclf/best.pt
 
+# generation
+code/text_generation/output
+code/text_generation/data
+code/text_generation/wandb
+
 # End of https://www.toptal.com/developers/gitignore/api/python
+

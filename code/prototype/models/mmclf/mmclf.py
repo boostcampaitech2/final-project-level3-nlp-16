@@ -7,9 +7,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.transforms as transforms
 
+import streamlit as st
 from PIL import Image
 from efficientnet_pytorch import EfficientNet
-from transformers import AutoConfig, AutoTokenizer, BertModel
+from transformers import AutoConfig, BertTokenizer, BertModel
+from tokenizers import Tokenizer
 
 
 class MultimodalCLF(nn.Module):
@@ -57,13 +59,18 @@ class FCLayer(nn.Module):
             x = self.relu(x)
         return self.linear(x)
 
-
-def get_model(model_path: str = "models/best.pt") -> MultimodalCLF:
+@st.cache
+def get_model(model_path: str = "models/mmclf/best.pt") -> MultimodalCLF:
     """Model을 가져옵니다"""
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = MultimodalCLF(num_classes=15).to(device)
     model.load_state_dict(torch.load(model_path, map_location=device))
     return model
+
+
+@st.cache(hash_funcs={Tokenizer: lambda _: None})
+def get_tokenizer(tokenizer_type: str = "models/mmclf"):
+    return BertTokenizer.from_pretrained(tokenizer_type)
 
 
 class SquarePad:
@@ -93,8 +100,7 @@ def _transform_image(image_bytes: bytes) -> torch.Tensor:
     image = Image.open(io.BytesIO(image_bytes)).convert('RGB')
     return transform(image).unsqueeze(0)
 
-def _tokenize_title(title: str):
-    tokenizer = AutoTokenizer.from_pretrained("klue/bert-base")
+def _tokenize_title(title: str, tokenizer):
     tokenized_title = tokenizer(
         title,
         return_tensors = "pt",
@@ -106,9 +112,9 @@ def _tokenize_title(title: str):
 
 
 @torch.no_grad()
-def predict_from_multimodal(model: MultimodalCLF, image_bytes: bytes, title: str, config: Dict[str, Any]):
+def predict_from_multimodal(model: MultimodalCLF, tokenizer, image_bytes: bytes, title: str, config: Dict[str, Any]):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    item = _tokenize_title(title)
+    item = _tokenize_title(title, tokenizer)
     transformed_image = _transform_image(image_bytes)
     item["pixel_values"] = transformed_image
     for key in item.keys():
@@ -120,8 +126,8 @@ def predict_from_multimodal(model: MultimodalCLF, image_bytes: bytes, title: str
     _, top3_pred = torch.topk(logits, 3, largest=True, sorted=True)
     return [config["classes"][pred] for pred in top3_pred.tolist()[0]]
 
-
-def get_config(config_path: str = "models/config.yaml"):
+@st.cache
+def get_config(config_path: str = "models/mmclf/config.yaml"):
     import yaml
     with open(config_path, "r") as f:
         config = yaml.load(f, Loader=yaml.FullLoader)

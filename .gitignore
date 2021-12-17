@@ -167,6 +167,6 @@ cython_debug/
 code/multimodal-clf/exp
 code/multimodal-clf/wandb
 data/imgs
-code/prototype/models/best.pt
+code/prototype/models/mmclf/best.pt
 
 # End of https://www.toptal.com/developers/gitignore/api/python

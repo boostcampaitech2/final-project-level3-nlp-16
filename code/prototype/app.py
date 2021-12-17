@@ -4,38 +4,10 @@ import requests
 import io
 from PIL import Image
 
-from streamlit_lottie import st_lottie
-from streamlit_lottie import st_lottie_spinner
+from streamlit_lottie import st_lottie, st_lottie_spinner
+from transformers import AutoTokenizer
 
-from models.mmclf import MultimodalCLF, get_model, predict_from_multimodal, get_config
-
-st.set_page_config()
-title=''
-content=''
-st.title("당신도 중고왕이 될 수 있습니다!")
-
-
-clf_model = get_model()
-clf_config = get_config()
-
-custom_bg_img = st.file_uploader(
-    "상품 이미지를 올려주세요!", 
-    type=["png", "jpg", "jpeg"]
-)
-
-if custom_bg_img:
-    image_bytes = custom_bg_img.getvalue()
-    image = Image.open(io.BytesIO(image_bytes))
-    st.image(image, caption='Uploaded Image')
-
-title=st.text_input("상품 제목을 입력해주세요.")
-
-if custom_bg_img and title:
-    st.write("Classifying...")
-
-    labels = predict_from_multimodal(model=clf_model, image=image, title=title, config=clf_config)
-    st.write(labels)
-
+from models.mmclf.mmclf import MultimodalCLF, get_model, predict_from_multimodal, get_config, get_tokenizer
 
 
 def load_lottieurl(url: str):
@@ -46,14 +18,37 @@ def load_lottieurl(url: str):
 
 lottie_url_hello = "https://assets5.lottiefiles.com/packages/lf20_V9t630.json"
 lottie_url_download = "https://assets7.lottiefiles.com/packages/lf20_wsy1p3ad.json"
+lottie_url_loading = "https://assets10.lottiefiles.com/packages/lf20_w6xlywkv.json"
 lottie_hello = load_lottieurl(lottie_url_hello)
 lottie_download = load_lottieurl(lottie_url_download)
+lottie_loading = load_lottieurl(lottie_url_loading)
+
+st.set_page_config()
+title=''
+content=''
+st.title("당신도 중고왕이 될 수 있습니다!")
 
 
-if st.button("카테고리 예측"):
-    with st_lottie_spinner(lottie_download, key="카테고리 예측"):
-        time.sleep(5)
-    st.balloons()
+st.clf_model = get_model()
+st.clf_tokenizer = get_tokenizer()
+st.clf_config = get_config()
+
+custom_bg_img = st.file_uploader(
+    "상품 이미지를 올려주세요!", 
+    type=["png", "jpg", "jpeg"]
+)
+
+if custom_bg_img:
+    image_bytes = custom_bg_img.getvalue()
+    image = Image.open(io.BytesIO(image_bytes))
+    st.image(image, caption='Uploaded Image', width=300)
+
+title=st.text_input("상품 제목을 입력해주세요.")
+
+if custom_bg_img and title:
+    with st_lottie_spinner(lottie_loading):
+        labels = predict_from_multimodal(model=st.clf_model, tokenizer=st.clf_tokenizer, image_bytes=image_bytes, title=title, config=st.clf_config)
+    st.write(labels)
 
 
 content=st.text_input("내용을 입력해주세요.")

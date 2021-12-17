@@ -167,6 +167,7 @@ cython_debug/
 code/multimodal-clf/exp
 code/multimodal-clf/wandb
 data/imgs
+code/prototype/models/mmclf/best.pt
 
 # generation
 code/text_generation/output

@@ -123,8 +123,9 @@ def predict_from_multimodal(model: MultimodalCLF, tokenizer, image_bytes: bytes,
     model.eval()
     img_logits, txt_logits = model.forward(item)
     logits = torch.div(img_logits+txt_logits, 2)
-    _, top3_pred = torch.topk(logits, 3, largest=True, sorted=True)
-    return [config["classes"][pred] for pred in top3_pred.tolist()[0]]
+    sorted_idx = torch.argsort(logits, descending=True)
+    # _, top3_pred = torch.topk(logits, 3, largest=True, sorted=True)
+    return [config["classes"][pred] for pred in sorted_idx.tolist()[0]]
 
 @st.cache
 def get_config(config_path: str = "models/mmclf/config.yaml"):

@@ -7,7 +7,7 @@ from PIL import Image
 from streamlit_lottie import st_lottie, st_lottie_spinner
 from transformers import AutoTokenizer
 
-from models.mmclf.mmclf import MultimodalCLF, get_model, predict_from_multimodal, get_config, get_tokenizer
+from models.mmclf.mmclf import get_model, predict_from_multimodal, get_config, get_tokenizer
 
 
 def load_lottieurl(url: str):
@@ -24,8 +24,6 @@ lottie_download = load_lottieurl(lottie_url_download)
 lottie_loading = load_lottieurl(lottie_url_loading)
 
 st.set_page_config()
-title=''
-content=''
 st.title("당신도 중고왕이 될 수 있습니다!")
 
 
@@ -46,9 +44,9 @@ if custom_bg_img:
 title=st.text_input("상품 제목을 입력해주세요.")
 
 if custom_bg_img and title:
-    with st_lottie_spinner(lottie_loading):
+    with st_lottie_spinner(lottie_loading, height=100):
         labels = predict_from_multimodal(model=st.clf_model, tokenizer=st.clf_tokenizer, image_bytes=image_bytes, title=title, config=st.clf_config)
-    st.write(labels)
+    st.session_state.category = st.selectbox("카테고리를 선택해주세요", labels)
 
 
 content=st.text_input("내용을 입력해주세요.")

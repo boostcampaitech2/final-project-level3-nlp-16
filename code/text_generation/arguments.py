@@ -24,7 +24,7 @@ class DataTrainingArguments:
     """
 
     dataset_name: Optional[str] = field(
-        default="nlprime/secondhand-goods",
+        default="nlprime/secondhand-goods-small",
         metadata={"help": "The name of the dataset to use."},
     )
 
@@ -34,7 +34,7 @@ class DataTrainingArguments:
     )
 
     cosine_rate: float = field(
-        default=0.3, metadata={"help": "rate to compare with cosine similarity"}
+        default=0.1, metadata={"help": "rate to compare with cosine similarity"}
     )
 
     dataset_output_dir: Optional[str] = field(
@@ -46,9 +46,9 @@ class DataTrainingArguments:
 @dataclass
 class TrainingArguments(TrainingArguments):
 
-    output_dir: str = field(default="./output")
+    output_dir: str = field(default="./output/hash-tag-generator-small")
     num_train_epochs: int = field(
-        default=3,
+        default=10,
         metadata={"help": "Define the number of epoch to run during training"},
     )
     per_device_train_batch_size: int = field(default=32)

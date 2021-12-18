@@ -69,8 +69,8 @@ def get_model(model_path: str = "models/mmclf/best.pt") -> MultimodalCLF:
 
 
 @st.cache(hash_funcs={Tokenizer: lambda _: None})
-def get_tokenizer(tokenizer_type: str = "models/mmclf"):
-    return BertTokenizer.from_pretrained(tokenizer_type)
+def get_tokenizer(tokenizer_path: str = "models/mmclf"):
+    return BertTokenizer.from_pretrained(tokenizer_path)
 
 
 class SquarePad:

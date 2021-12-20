@@ -24,7 +24,7 @@ class DataTrainingArguments:
     """
 
     dataset_name: Optional[str] = field(
-        default="../../data/raw_csv_data",
+        default="/opt/ml/code/generation/",
         metadata={"help": "The name of the dataset to use."},
     )
 
@@ -41,7 +41,7 @@ class DataTrainingArguments:
 @dataclass
 class TrainingArguments(TrainingArguments):
 
-    output_dir: str = field(default="./output")
+    output_dir: str = field(default="/opt/ml/code/generation/output")
     num_train_epochs: int = field(
         default=3,
         metadata={"help": "Define the number of epoch to run during training"},

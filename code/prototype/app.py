@@ -1,6 +1,15 @@
 import streamlit as st
 import time
 import requests
+from transformers import AutoTokenizer, AutoModelForCausalLM
+
+from streamlit_lottie import st_lottie
+from streamlit_lottie import st_lottie_spinner
+import pandas as pd
+import re
+
+import time
+from inference import cleaning, inference
 import io
 from PIL import Image
 import os
@@ -34,6 +43,25 @@ if "clf_tokenizer" not in st.session_state:
 st.title("당신도 중고 거래왕이 될 수 있습니다!")
 
 
+content=st.text_input("내용을 입력해주세요.")
+Result=[]
+if st.button("해시태그 생성"):
+    with st_lottie_spinner(lottie_download, key="해시태그 생성"):
+        tokenizer = AutoTokenizer.from_pretrained(
+        "nlprime/hash-tag-generator-small",use_auth_token=True
+        )
+
+        model = AutoModelForCausalLM.from_pretrained(
+            "nlprime/hash-tag-generator-small",use_auth_token=True
+        )
+        ids,max_len=cleaning(title,content,tokenizer)
+        Result = inference(ids,max_len,model,tokenizer)
+
+    st.balloons()
+
+    st.balloons()
+
+selected_item = st.radio("Radio Part", Result)
 
 custom_bg_img = st.file_uploader(
     "상품 이미지를 올려주세요!", 
@@ -135,6 +163,7 @@ content=st.text_area("내용을 입력해주세요.")
 # st.write('You selected:', multi_select)
 
 # add_selectbox = st.sidebar.selectbox("왼쪽 사이드바 Select Box", ("A", "B", "C"))
+
 
 # col1, col2, col3 = st.beta_columns(3)
 

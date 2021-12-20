@@ -1,5 +1,4 @@
 import configparser
-from typing import final
 import requests
 import json
 from tqdm import tqdm
@@ -18,10 +17,8 @@ def load_config():
     user = config['ES']['USER']
     password = config['ES']['PASSWORD']
     endpoint = config['ES']['ENDPOINT']
-    index_name = "auto_tag2"
+    index_name = "auto_tag"
 
-    # auto_tag = 검색시 nori_tokenizer
-    # auto_tag2 = 검색시 whitespace
     return user, password, endpoint, index_name
 
 
@@ -87,79 +84,29 @@ def es_indexing(file_path):
 def es_make_index():
     es_user, es_password, es_endpoint, es_index_name = load_config()
 
-    index_settings = {
-        "settings": {
-            "analysis": {
-                "tokenizer": {
-                    "korean_nori_tokenizer": {
-                        "type": "nori_tokenizer",
-                        "decompound_mode": "mixed",
-                        "user_dictionary_rules": ["c++", "C샤프", "세종", "세종시 세종 시", "스마트티비 스마트 티비"]
-                    }
-                },
-                "analyzer": {
-                    "nori_analyzer": {
-                        "type": "custom",
-                        "tokenizer": "korean_nori_tokenizer",
-                        "filter": ["nori_posfilter", "nori_readingform", "lowercase"]
-                    },
-
-                    "white_analyzer":{
-                        "type": "custom",
-                        "tokenizer": "whitespace",
-                        "filter": ["lowercase"]
-                    }
-                },
-                "filter": {
-                    "nori_posfilter": {
-                        "type": "nori_part_of_speech",
-                        "stoptags": [
-                            "E",
-                            "IC",
-                            "J",
-                            "MAG",
-                            "MM",
-                            "NA",
-                            "NR",
-                            "SC",
-                            "SE",
-                            "SF",
-                            "SH",
-                            "SL",
-                            "SN",
-                            "SP",
-                            "SSC",
-                            "SSO",
-                            "SY",
-                            "UNA",
-                            "UNKNOWN",
-                            "VA",
-                            "VCN",
-                            "VCP",
-                            "VSV",
-                            "VV",
-                            "VX",
-                            "XPN",
-                            "XR",
-                            "XSA",
-                            "XSN",
-                            "XSV"
-                        ]
-                    }
-                }
+    index_settings = { "settings": { 
+        "number_of_shards": 2, 
+        "number_of_replicas": 1, 
+        "analysis": { 
+            "analyzer": { 
+            "white_analyzer":{ 
+                "type": "custom", 
+                "tokenizer": "whitespace", 
+                "filter": ["lowercase"] 
+            } 
             }
-        },
-        "mappings": {
-            "properties": {
-                "vocab": {
-                    "type": "text",
-                    "analyzer": "white_analyzer",
-                    "search_analyzer": "nori_analyzer"
-                }
-            }
+        } 
+        }, 
+        "mappings": { 
+        "properties": { 
+            "vocab": { 
+            "type": "text", 
+            "analyzer": "white_analyzer", 
+            "search_analyzer": "white_analyzer" 
+            } 
+        } 
+        } 
         }
-    }
-
     headers = {"Content-Type": "application/json; charset=utf-8"}
     session = requests.Session()
     session.auth = (es_user, es_password)

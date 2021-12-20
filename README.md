@@ -1,8 +1,5 @@
 # 당신도 중고 거래왕이 될 수 있습니다!
 
-## Team Wrap-up Report
-  * [notion]()
-
 ## Table of Contents
   1. [Project Overview](#Project-Overview)
   2. [Getting Started](#Getting-Started)

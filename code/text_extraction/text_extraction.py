@@ -1,5 +1,5 @@
-# import text_extraction.es_api as es # steanmlit
-import es_api as es # jupyter
+import text_extraction.es_api as es # steanmlit
+# import es_api as es # jupyter
 from hanspell import spell_checker
 import re
 import math 

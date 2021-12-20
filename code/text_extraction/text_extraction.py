@@ -1,5 +1,4 @@
-import text_extraction.es_api as es # steanmlit
-# import es_api as es # jupyter
+import text_extraction.es_api as es 
 from hanspell import spell_checker
 import re
 import math 
@@ -41,7 +40,7 @@ def preprocess_query(query):
 def get_idf_values(es_result):
     idf_values = {}
     er = []
-    for doc in es_result['hits']['hits']: #res['hits']['hits']
+    for doc in es_result['hits']['hits']: 
         for term in doc["_explanation"]["details"]:
             try:
                 word = term["description"]
@@ -59,20 +58,3 @@ def get_tf_idf_values(query, idf_values):
         idf_values[key] *= math.log1p(len(re.findall(key.lower(), query.lower())))
     
     return idf_values
-
-# def test_spelled_query(query):
-#     spelled_query = spell_checker.check(query)
-
-#     if spelled_query[0]:
-#         es_result = es.es_search(spelled_query[2])
-#     else:
-#         es_result = es.es_search(query)
-
-#     idf_values = get_idf_values(es_result)
-#     if spelled_query[0]:
-#         tf_idf_values = get_tf_idf_values(spelled_query[2], idf_values)
-#     else:
-#         tf_idf_values = get_tf_idf_values(query, idf_values)
-#     extracted_spelled_text = sorted(tf_idf_values.items(), key=(lambda x: x[1]), reverse=True)
-
-#     return extracted_spelled_text

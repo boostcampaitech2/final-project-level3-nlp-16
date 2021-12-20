@@ -22,16 +22,6 @@ def es_search(query):
     es_user, es_password, es_endpoint, es_index_name = load_config()
     session = requests.Session()
     session.auth = (es_user, es_password)
-    # headers = {"Content-Type": "application/json; charset=utf-8"}
-    # body = {
-    #     "query": {
-    #         "multi_match" : {
-    #             "query": query,
-    #             "type":       "cross_fields",
-    #             "fields": [ "vocab", "vocab.english" ]
-    #             }
-    #         }
-    #     }
 
     try:
         res = session.get(

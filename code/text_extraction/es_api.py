@@ -4,19 +4,15 @@ import json
 from tqdm import tqdm
 from pprint import pprint as pp
 from elasticsearch import Elasticsearch
-import os
-import sys
-
-
 
 
 def load_config():
     config = configparser.ConfigParser()
-    config.read('.config.ini')
-    
-    user = config['ES']['USER']
-    password = config['ES']['PASSWORD']
-    endpoint = config['ES']['ENDPOINT']
+    config.read(".config.ini")
+
+    user = config["ES"]["USER"]
+    password = config["ES"]["PASSWORD"]
+    endpoint = config["ES"]["ENDPOINT"]
     index_name = "auto_tag"
 
     return user, password, endpoint, index_name
@@ -32,18 +28,23 @@ def es_search(query):
     #         "multi_match" : {
     #             "query": query,
     #             "type":       "cross_fields",
-    #             "fields": [ "vocab", "vocab.english" ] 
+    #             "fields": [ "vocab", "vocab.english" ]
     #             }
     #         }
     #     }
 
     try:
-        res = session.get(es_endpoint + "/" + es_index_name + "/_search?q={}&explain=true&size=10000".format(query))
+        res = session.get(
+            es_endpoint
+            + "/"
+            + es_index_name
+            + "/_search?q={}&explain=true&size=10000".format(query)
+        )
     except requests.exceptions.RequestException as erra:
         print("es_search() Exception : ", erra)
     except requests.exceptions.HTTPError as hter:
-        print("http Exception : ", hter)        
-        
+        print("http Exception : ", hter)
+
     return res.json()
 
 
@@ -84,29 +85,30 @@ def es_indexing(file_path):
 def es_make_index():
     es_user, es_password, es_endpoint, es_index_name = load_config()
 
-    index_settings = { "settings": { 
-        "number_of_shards": 2, 
-        "number_of_replicas": 1, 
-        "analysis": { 
-            "analyzer": { 
-            "white_analyzer":{ 
-                "type": "custom", 
-                "tokenizer": "whitespace", 
-                "filter": ["lowercase"] 
-            } 
+    index_settings = {
+        "settings": {
+            "number_of_shards": 2,
+            "number_of_replicas": 1,
+            "analysis": {
+                "analyzer": {
+                    "white_analyzer": {
+                        "type": "custom",
+                        "tokenizer": "whitespace",
+                        "filter": ["lowercase"],
+                    }
+                }
+            },
+        },
+        "mappings": {
+            "properties": {
+                "vocab": {
+                    "type": "text",
+                    "analyzer": "white_analyzer",
+                    "search_analyzer": "white_analyzer",
+                }
             }
-        } 
-        }, 
-        "mappings": { 
-        "properties": { 
-            "vocab": { 
-            "type": "text", 
-            "analyzer": "white_analyzer", 
-            "search_analyzer": "white_analyzer" 
-            } 
-        } 
-        } 
-        }
+        },
+    }
     headers = {"Content-Type": "application/json; charset=utf-8"}
     session = requests.Session()
     session.auth = (es_user, es_password)
@@ -121,5 +123,3 @@ def es_make_index():
 
     print(res)
     print("ElasticSearch make Index Finished")
-
-

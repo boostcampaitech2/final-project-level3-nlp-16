@@ -12,9 +12,9 @@
     1. 멀티모달 분류모델을 활용하여 입력된 상품 이미지와 제목으로 카테고리 분류
     2. 생성/추출모델을 통해 상품 노출 빈도를 높일 수 있는 해시태그 생성
   * 모델
-    - 1
-    - 2
-    - 3
+    1. EfficientNet-b0 와 BERT Classifier 모델을 이용한 카테고리 분류모델
+    2. Elastic Search 와 TF-IDF를 이용한 HashTag 추출모델
+    3. [skt/kogpt-base-v2](https://github.com/SKT-AI/KoGPT2)를 기반한 데이터 fine-tuned HashTag 생성모델
   * Data
     - 1
     - 2

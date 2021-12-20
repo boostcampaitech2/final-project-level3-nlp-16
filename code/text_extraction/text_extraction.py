@@ -1,5 +1,5 @@
-import text_extraction.es_api as es
-# import es_api as es
+# import text_extraction.es_api as es # steanmlit
+import es_api as es # jupyter
 from hanspell import spell_checker
 import re
 import math 
@@ -18,7 +18,7 @@ def extract_text(query):
 
 def make_result(extracted_text):
     result = []
-    for key,value in extracted_text:
+    for key, value in extracted_text[:3]:
         result.append(key)
     return result
 

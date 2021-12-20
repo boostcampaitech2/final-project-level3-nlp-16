@@ -1,17 +1,21 @@
-import streamlit as st
+import enum
+import io
+import os, sys 
 import time
 import requests
-import io
+import pandas as pd
 from PIL import Image
-import os
-import sys
 
+import streamlit as st
 from streamlit_lottie import st_lottie, st_lottie_spinner
+
+from transformers import AutoTokenizer, AutoModelForCausalLM
 
 from models.mmclf.mmclf import MultimodalCLF, get_model, predict_from_multimodal, get_config, get_tokenizer
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from text_extraction.text_extraction import extract_text
-import pororo 
+from inference import cleaning, inference
+
 
 def load_lottieurl(url: str):
     r = requests.get(url)
@@ -31,9 +35,14 @@ if "clf_tokenizer" not in st.session_state:
     st.session_state.clf_tokenizer = get_tokenizer()
     st.session_state.clf_config = get_config()
 
+    st.session_state.tokenizer = AutoTokenizer.from_pretrained(
+        "nlprime/hash-tag-generator-small",use_auth_token=True
+    )
+    st.session_state.model = AutoModelForCausalLM.from_pretrained(
+        "nlprime/hash-tag-generator-small",use_auth_token=True
+    )
+    
 st.title("당신도 중고 거래왕이 될 수 있습니다!")
-
-
 
 custom_bg_img = st.file_uploader(
     "상품 이미지를 올려주세요!", 
@@ -44,30 +53,20 @@ if custom_bg_img:
     image_bytes = custom_bg_img.getvalue()
     image = Image.open(io.BytesIO(image_bytes))
     st.image(image, caption='Uploaded Image', width=300)
-
+    
 title=st.text_input("상품 제목을 입력해주세요.")
 
 if "labels" not in st.session_state:
     st.session_state.labels = []
 
-content=st.text_area("내용을 입력해주세요.")
-
-if st.button("해시태그 생성"):
-    
-    input_text = title + ' ' + content
-    extraction_tag = extract_text(input_text)
-    for tag in extraction_tag:
-        st.write('#' + tag)
-    
-    with st_lottie_spinner(lottie_download, key="해시태그 생성"):
-        time.sleep(5)
-    st.balloons()
-
-List=["A","B","C"]
-selected_item = st.radio("Radio Part", List)
 if custom_bg_img and title:
     with st_lottie_spinner(lottie_loading, height=100):
-        st.session_state.labels = predict_from_multimodal(model=st.session_state.clf_model, tokenizer=st.session_state.clf_tokenizer, image_bytes=image_bytes, title=title, config=st.session_state.clf_config)
+        st.session_state.labels = predict_from_multimodal(model=st.session_state.clf_model, 
+                                                          tokenizer=st.session_state.clf_tokenizer, 
+                                                          image_bytes=image_bytes, 
+                                                          title=title, 
+                                                          config=st.session_state.clf_config)
+
 
 if st.session_state.labels:
     st.write("추천 카테고리")
@@ -89,56 +88,58 @@ if st.session_state.labels:
             )
     else:
         st.session_state.selected_category = st.selectbox("카테고리를 선택해주세요", st.session_state.labels)
+        
+        
+content=st.text_area("내용을 입력해주세요.", height = 150)
 
+if st.button("해시태그 생성"):
+    
+    output = []
+    input_text = title + ' ' + content
+    extraction_tag = extract_text(input_text)
 
-    # col1, col2, col3, col4, col5 = st.columns(5)
-    # bt1 = col1.button(st.session_state.labels[0])
-    # bt2 = col2.button(st.session_state.labels[1])
-    # bt3 = col3.button(st.session_state.labels[2])
-    # bt4 = col4.button(st.session_state.labels[3])
-    # bt5 = col5.button(st.session_state.labels[4])
-    # for idx, bt in enumerate([bt1, bt2, bt3, bt4, bt5]):
-    #     if bt:
-    #         selected_category = st.selectbox(
-    #             "카테고리를 선택해주세요", [st.session_state.labels[idx]]+st.session_state.labels[:idx]+st.session_state.labels[idx+1:])
-    #         break
-    # else:
-    #     selected_category = st.selectbox("카테고리를 선택해주세요", st.session_state.labels)
+    output.extend(extraction_tag[:3])
+    print('extraction_tag ', extraction_tag)
+            
+    # tokenizer = AutoTokenizer.from_pretrained(
+    #     "nlprime/hash-tag-generator-small",use_auth_token=True
+    # )
+    # model = AutoModelForCausalLM.from_pretrained(
+    #     "nlprime/hash-tag-generator-small",use_auth_token=True
+    # )
 
+    ids,max_len = cleaning(title, content, st.session_state.tokenizer)
+    generation = inference(ids, max_len, st.session_state.model, st.session_state.tokenizer)
+    print('generation ', generation)
+    output.extend(generation)
+    st.session_state.output = output
+    
+if st.session_state.get('output', None) is None:
+    st.session_state.output = []
 
+add_hashtag = st.text_input("추가로 입력할 해시태그를 적어주세요.")
 
-content=st.text_area("내용을 입력해주세요.")
+output_str = ''
+print(st.session_state.output)
+for file in st.session_state.output:
+    print(file)
+    check_boxes = st.checkbox('#' + file)
+    if check_boxes:
+        # output_str = '#' + file
+        output_str += '#' + file + ' '
 
-# if st.button("해시태그 생성"):
-#     with st_lottie_spinner(lottie_download, key="해시태그 생성"):
-#         time.sleep(5)
-#     st.balloons()
+if add_hashtag:
+    for add_tag in add_hashtag.split(' '):
+        # output_str += '#' + add_tag
+        output_str += '#' + add_tag + ' '
+        # st.write('#' + add_tag, end = ' ')
 
-# List=["A","B","C"]
-# selected_item = st.radio("Radio Part", List)
-	
-# if selected_item == "A":
-#     st.write("A!!")
-# elif selected_item == "B":
-#     st.write("B!")
-# elif selected_item == "C":
-#     st.write("C!")
+st.write(output_str)
 
-# option = st.selectbox('Please select in selectbox!',
-#                     ('kyle', 'seongyun', 'zzsza'))
-	
-# st.write('You selected:', option)
+# for t in test:
+#     output_str += '#' + t + ' '
+#     # st.write('#' + t, end = ' ')
+print(output_str)
 
-# multi_select = st.multiselect('Please select somethings in multi selectbox!',
-#                                 ['A', 'B', 'C', 'D'])
-	
-# st.write('You selected:', multi_select)
-
-# add_selectbox = st.sidebar.selectbox("왼쪽 사이드바 Select Box", ("A", "B", "C"))
-
-# col1, col2, col3 = st.beta_columns(3)
-
-# with col1:
-#    st.header("A cat")
-#    st.image("https://static.streamlit.io/examples/cat.jpg")
-
+# for tag in output_str.split(' '):
+#     st.write('#' + tag)

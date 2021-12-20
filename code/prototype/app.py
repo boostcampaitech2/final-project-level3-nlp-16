@@ -44,6 +44,30 @@ if "clf_tokenizer" not in st.session_state:
     
 st.title("당신도 중고 거래왕이 될 수 있습니다!")
 
+<<<<<<< HEAD
+=======
+
+content=st.text_input("내용을 입력해주세요.")
+Result=[]
+if st.button("해시태그 생성"):
+    with st_lottie_spinner(lottie_download, key="해시태그 생성"):
+        tokenizer = AutoTokenizer.from_pretrained(
+        "nlprime/hash-tag-generator-small",use_auth_token=True
+        )
+
+        model = AutoModelForCausalLM.from_pretrained(
+            "nlprime/hash-tag-generator-small",use_auth_token=True
+        )
+        ids,max_len=cleaning(title,content,tokenizer)
+        Result = inference(ids,max_len,model,tokenizer)
+
+    st.balloons()
+
+    st.balloons()
+
+selected_item = st.radio("Radio Part", Result)
+
+>>>>>>> upstream/main
 custom_bg_img = st.file_uploader(
     "상품 이미지를 올려주세요!", 
     type=["png", "jpg", "jpeg"]
@@ -98,6 +122,7 @@ if st.button("해시태그 생성"):
     input_text = title + ' ' + content
     extraction_tag = extract_text(input_text)
 
+<<<<<<< HEAD
     output.extend(extraction_tag[:3])
     print('extraction_tag ', extraction_tag)
             
@@ -143,3 +168,57 @@ print(output_str)
 
 # for tag in output_str.split(' '):
 #     st.write('#' + tag)
+=======
+    # col1, col2, col3, col4, col5 = st.columns(5)
+    # bt1 = col1.button(st.session_state.labels[0])
+    # bt2 = col2.button(st.session_state.labels[1])
+    # bt3 = col3.button(st.session_state.labels[2])
+    # bt4 = col4.button(st.session_state.labels[3])
+    # bt5 = col5.button(st.session_state.labels[4])
+    # for idx, bt in enumerate([bt1, bt2, bt3, bt4, bt5]):
+    #     if bt:
+    #         selected_category = st.selectbox(
+    #             "카테고리를 선택해주세요", [st.session_state.labels[idx]]+st.session_state.labels[:idx]+st.session_state.labels[idx+1:])
+    #         break
+    # else:
+    #     selected_category = st.selectbox("카테고리를 선택해주세요", st.session_state.labels)
+
+
+
+content=st.text_area("내용을 입력해주세요.")
+
+# if st.button("해시태그 생성"):
+#     with st_lottie_spinner(lottie_download, key="해시태그 생성"):
+#         time.sleep(5)
+#     st.balloons()
+
+# List=["A","B","C"]
+# selected_item = st.radio("Radio Part", List)
+	
+# if selected_item == "A":
+#     st.write("A!!")
+# elif selected_item == "B":
+#     st.write("B!")
+# elif selected_item == "C":
+#     st.write("C!")
+
+# option = st.selectbox('Please select in selectbox!',
+#                     ('kyle', 'seongyun', 'zzsza'))
+	
+# st.write('You selected:', option)
+
+# multi_select = st.multiselect('Please select somethings in multi selectbox!',
+#                                 ['A', 'B', 'C', 'D'])
+	
+# st.write('You selected:', multi_select)
+
+# add_selectbox = st.sidebar.selectbox("왼쪽 사이드바 Select Box", ("A", "B", "C"))
+
+
+# col1, col2, col3 = st.beta_columns(3)
+
+# with col1:
+#    st.header("A cat")
+#    st.image("https://static.streamlit.io/examples/cat.jpg")
+
+>>>>>>> upstream/main

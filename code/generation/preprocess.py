@@ -7,7 +7,7 @@ from numpy.linalg import norm
 from tqdm import tqdm
 from transformers import AutoTokenizer
 
-OUTPUT = "../../data/nlp_data"
+OUTPUT = "/opt/ml/code/generation"
 
 
 def create_data_normal(path):
@@ -27,6 +27,8 @@ def create_data_normal(path):
             text = text.replace("\r", " ")
             text = re.sub(r"[^\w\s]", "", text)
             tag = tag.replace(",", " ")
+            tag=tag.replace("광진구","")
+            tag=tag.replace("부산","")
             tag = re.sub(r"[^\w\s]", "", tag)
             tag = tag.replace(" ", "<sep>")
             line = "<s>" + title + "<sep>" + text + "<sep>" + tag + "</s>"
@@ -65,7 +67,7 @@ def create_data_cosine(path, cosine_rate):
             title = re.sub(r"[^\w\s]", "", title)
 
             # calculate cosine
-            text_line = [d for d in text.split("\n") if len(d) > 2]
+            text_line = [d for d in text.split("\n") if len(d) > 2 and len(d)<512]
             title_token = tokenizer.convert_ids_to_tokens(tokenizer.encode(title))[1:-1]
             line_list = []
             for line in text_line:

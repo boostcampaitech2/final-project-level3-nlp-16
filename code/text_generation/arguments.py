@@ -34,7 +34,7 @@ class DataTrainingArguments:
     )
 
     cosine_rate: float = field(
-        default=0.1, metadata={"help": "rate to compare with cosine similarity"}
+        default=0.3, metadata={"help": "rate to compare with cosine similarity"}
     )
 
     dataset_output_dir: Optional[str] = field(
@@ -46,7 +46,7 @@ class DataTrainingArguments:
 @dataclass
 class TrainingArguments(TrainingArguments):
 
-    output_dir: str = field(default="./output/hash-tag-generator-large")
+    output_dir: str = field(default="./output/hash-tag-generator-fix")
     num_train_epochs: int = field(
         default=10,
         metadata={"help": "Define the number of epoch to run during training"},

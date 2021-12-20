@@ -100,26 +100,27 @@ def create_data_cosine(dataset, output_dir, cosine_rate, stop_word_list):
         text = dataset[idx]["description"]
         tag = dataset[idx]["tag"]
 
-        title, text_line, tag = cleaning(title, text, tag, stop_word_list)
+        if tag != None:
+            title, text_line, tag = cleaning(title, text, tag, stop_word_list)
 
-        # calculate cosine
-        title_token = tokenizer.morphs(title)
-        title_matrix = create_matrix(title_token, title_token)
-        line_list = []
-        for line in text_line:
-            line_token = tokenizer.morphs(line)
-            title_line_matrix = create_matrix(title_token, line_token)
-            cosine_sim = cal_cosine_sim(title_matrix, title_line_matrix)
+            # calculate cosine
+            title_token = tokenizer.morphs(title)
+            title_matrix = create_matrix(title_token, title_token)
+            line_list = []
+            for line in text_line:
+                line_token = tokenizer.morphs(line)
+                title_line_matrix = create_matrix(title_token, line_token)
+                cosine_sim = cal_cosine_sim(title_matrix, title_line_matrix)
 
-            # if able to accept, preprocess the sentence and add to list
-            if cosine_sim > cosine_rate:
-                line_list.append(line)
+                # if able to accept, preprocess the sentence and add to list
+                if cosine_sim > cosine_rate:
+                    line_list.append(line)
 
-        if len(line_list) > 0:
-            text = ". ".join(line_list)
-            result = "<s>" + title + "<sep>" + text + "<sep>" + tag + "</s>"
-            tmp = {"data": result}
-            total.append(tmp)
+            if len(line_list) > 0:
+                text = ". ".join(line_list)
+                result = "<s>" + title + "<sep>" + text + "<sep>" + tag + "</s>"
+                tmp = {"data": result}
+                total.append(tmp)
 
     return_dataset = pd.DataFrame(total)
     if not os.path.exists(output_dir):

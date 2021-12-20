@@ -1,10 +1,15 @@
 import streamlit as st
 import time
 import requests
+from transformers import AutoTokenizer, AutoModelForCausalLM
 
 from streamlit_lottie import st_lottie
 from streamlit_lottie import st_lottie_spinner
+import pandas as pd
+import re
 
+import time
+from inference import cleaning, inference
 
 st.set_page_config()
 title=''
@@ -35,14 +40,24 @@ if st.button("카테고리 예측"):
 
 
 content=st.text_input("내용을 입력해주세요.")
-
+Result=[]
 if st.button("해시태그 생성"):
     with st_lottie_spinner(lottie_download, key="해시태그 생성"):
-        time.sleep(5)
+        tokenizer = AutoTokenizer.from_pretrained(
+        "nlprime/hash-tag-generator-small",use_auth_token=True
+        )
+
+        model = AutoModelForCausalLM.from_pretrained(
+            "nlprime/hash-tag-generator-small",use_auth_token=True
+        )
+        ids,max_len=cleaning(title,content,tokenizer)
+        result=inference(ids,max_len,model,tokenizer)
+
     st.balloons()
 
-List=["A","B","C"]
-selected_item = st.radio("Radio Part", List)
+    st.balloons()
+
+selected_item = st.radio("Radio Part", Result)
 	
 if selected_item == "A":
     st.write("A!!")
@@ -63,9 +78,5 @@ st.write('You selected:', multi_select)
 
 add_selectbox = st.sidebar.selectbox("왼쪽 사이드바 Select Box", ("A", "B", "C"))
 
-col1, col2, col3 = st.beta_columns(3)
 
-with col1:
-   st.header("A cat")
-   st.image("https://static.streamlit.io/examples/cat.jpg", use_column_width=True)
 

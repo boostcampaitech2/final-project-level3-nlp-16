@@ -3,11 +3,15 @@ import time
 import requests
 import io
 from PIL import Image
+import os
+import sys
 
 from streamlit_lottie import st_lottie, st_lottie_spinner
 
-from models.mmclf.mmclf import get_model, predict_from_multimodal, get_config, get_tokenizer
-
+from models.mmclf.mmclf import MultimodalCLF, get_model, predict_from_multimodal, get_config, get_tokenizer
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+from text_extraction.text_extraction import extract_text
+import pororo 
 
 def load_lottieurl(url: str):
     r = requests.get(url)
@@ -46,6 +50,21 @@ title=st.text_input("상품 제목을 입력해주세요.")
 if "labels" not in st.session_state:
     st.session_state.labels = []
 
+content=st.text_area("내용을 입력해주세요.")
+
+if st.button("해시태그 생성"):
+    
+    input_text = title + ' ' + content
+    extraction_tag = extract_text(input_text)
+    for tag in extraction_tag:
+        st.write('#' + tag)
+    
+    with st_lottie_spinner(lottie_download, key="해시태그 생성"):
+        time.sleep(5)
+    st.balloons()
+
+List=["A","B","C"]
+selected_item = st.radio("Radio Part", List)
 if custom_bg_img and title:
     with st_lottie_spinner(lottie_loading, height=100):
         st.session_state.labels = predict_from_multimodal(model=st.session_state.clf_model, tokenizer=st.session_state.clf_tokenizer, image_bytes=image_bytes, title=title, config=st.session_state.clf_config)

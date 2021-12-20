@@ -3,12 +3,16 @@ import time
 import requests
 import io
 from PIL import Image
+import os
+import sys
 
 from streamlit_lottie import st_lottie, st_lottie_spinner
 from transformers import AutoTokenizer
 
 from models.mmclf.mmclf import MultimodalCLF, get_model, predict_from_multimodal, get_config, get_tokenizer
-
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+from text_extraction.text_extraction import extract_text
+import pororo 
 
 def load_lottieurl(url: str):
     r = requests.get(url)
@@ -51,9 +55,15 @@ if custom_bg_img and title:
     st.write(labels)
 
 
-content=st.text_input("내용을 입력해주세요.")
+content=st.text_area("내용을 입력해주세요.")
 
 if st.button("해시태그 생성"):
+    
+    input_text = title + ' ' + content
+    extraction_tag = extract_text(input_text)
+    for tag in extraction_tag:
+        st.write('#' + tag)
+    
     with st_lottie_spinner(lottie_download, key="해시태그 생성"):
         time.sleep(5)
     st.balloons()

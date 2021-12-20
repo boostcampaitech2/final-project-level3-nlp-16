@@ -109,9 +109,16 @@ def train(
 
     # Evaluation with test dataset
     model.load_state_dict(torch.load(model_path))
-    test_acc, test_f1, test_top3_acc, test_top3_f1 = trainer.test(
+    test_acc, test_f1, test_top3_acc, test_top3_f1, test_cm = trainer.test(
         model=model, test_dataloader=test_loader
     )
+    wandb.log({
+        "test/accuracy": test_acc,
+        "test/top3_accuracy": test_top3_acc,
+        "test/f1": test_f1,
+        "test/top3_f1": test_top3_f1,
+        "test/confusion_matrix": test_cm,
+    })
     return test_f1, test_acc, test_top3_f1, test_top3_acc
 
 
@@ -149,5 +156,5 @@ if __name__ == "__main__":
         log_dir=log_dir,
         device=device,
     )
+    print(f"Test Result | Acc: {test_acc:.3f}, F1: {test_f1:.3f}, Top3_Acc: {test_top3_acc:.3f}, Top3_F1: {test_top3_f1:.3f}")
     
-    print(f"Test Result || acc: {test_acc:.3f}, f1: {test_f1:.3f}, top3_acc: {test_top3_acc:.3f}, top3_f1: {test_top3_f1:.3f}")

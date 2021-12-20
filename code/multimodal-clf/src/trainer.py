@@ -254,7 +254,7 @@ class TorchTrainer:
             loss, f1, accuracy
         """
 
-        correct, top3_correct, total = 0.0, 0, 0, 0
+        correct, top3_correct, total = 0, 0, 0
         preds, top3_preds, gt = [], [], []
         label_list = [i for i in range(self.num_classes)]
 

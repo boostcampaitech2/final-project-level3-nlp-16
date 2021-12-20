@@ -1,6 +1,8 @@
-import es_api as es
+import text_extraction.es_api as es
+# import es_api as es
 from hanspell import spell_checker
 import re
+import math 
 
 def extract_text(query):
     
@@ -16,7 +18,7 @@ def extract_text(query):
 
 def make_result(extracted_text):
     result = []
-    for key,value in extracted_text[:3]:
+    for key,value in extracted_text:
         result.append(key)
     return result
 
@@ -54,7 +56,7 @@ def get_idf_values(es_result):
 
 def get_tf_idf_values(query, idf_values):
     for key in idf_values:
-        idf_values[key] *= len(re.findall(key.lower(), query.lower()))
+        idf_values[key] *= math.log1p(len(re.findall(key.lower(), query.lower())))
     
     return idf_values
 

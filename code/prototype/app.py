@@ -51,7 +51,7 @@ if st.button("해시태그 생성"):
             "nlprime/hash-tag-generator-small",use_auth_token=True
         )
         ids,max_len=cleaning(title,content,tokenizer)
-        result=inference(ids,max_len,model,tokenizer)
+        Result = inference(ids,max_len,model,tokenizer)
 
     st.balloons()
 

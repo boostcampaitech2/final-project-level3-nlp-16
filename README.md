@@ -1,11 +1,20 @@
 # 당신도 중고 거래왕이 될 수 있습니다!
 
 ## Table of Contents
-  1. [Project Overview](#Project-Overview)
-  2. [Getting Started](#Getting-Started)
-  3. [Hardware](#Hardware)
-  4. [Code Structure](#Code-Structure)
-  5. [Detail](#Detail)
+  1. [Members](##Members)
+  2. [Project Overview](##Project-Overview)
+  3. [Getting Started](##Getting-Started)
+  4. [Hardware](##Hardware)
+  5. [Code Structure](##Code-Structure)
+  6. [Detail](##Detail)
+
+## Members
+
+|                            김아경                            |                            김현욱                            |                            김황대                            |                            박상류                            |                            정재현                            |                            최윤성                            |
+| :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
+| [![Avatar](https://avatars.githubusercontent.com/u/70522267?v=4)](https://github.com/EP000) | [![Avatar](https://avatars.githubusercontent.com/u/31470457?v=4)](https://github.com/powerwook) | [![Avatar](https://avatars.githubusercontent.com/u/59689327?v=4)](https://github.com/kimhwangdae) | [![Avatar](https://avatars.githubusercontent.com/u/60460317?v=4)](https://github.com/psrpsj) | [![Avatar](https://avatars.githubusercontent.com/u/13325436?v=4)](https://github.com/JHyunJung) | [![Avatar](https://avatars.githubusercontent.com/u/80210706?v=4)](https://github.com/choi-yunsung) |
+| [Github](https://github.com/EP000) | [Github](https://github.com/powerwook) | [Github](https://github.com/kimhwangdae) | [Github](https://github.com/psrpsj) | [Github](https://github.com/JHyunJung) | [Github](https://github.com/choi-yunsung) |
+
 
 ## Project Overview
   * 목표
@@ -19,12 +28,12 @@
     * 번개장터 crawling 데이터 (분야 : 전가기기)
 
   * Contributors
-    * 김아경([github](https://github.com/EP000)): 추출모델설계, Text 데이터 전처리
-    * 김현욱([github](https://github.com/powerwook)): 이미지 데이터 전처리, 분류모델 검증
-    * 김황대([github](https://github.com/kimhwangdae)): 생성모델 설계, Streamlit 설계
-    * 박상류([github](https://github.com/psrpsj)): 생성모델 설계, Text 데이터 전처리
-    * 정재현([github](https://github.com/JHyunJung)): 데이터 크롤링, Elastic Search 설계 및 구현
-    * 최윤성([github](https://github.com/choi-yunsung)): Project Manager, 분류모델 설계
+    * 김아경: 추출모델설계, Text 데이터 전처리
+    * 김현욱: 이미지 데이터 전처리, 분류모델 검증
+    * 김황대: 생성모델 설계, Streamlit 설계
+    * 박상류: 생성모델 설계, Text 데이터 전처리
+    * 정재현: 데이터 크롤링, Elastic Search 설계 및 구현
+    * 최윤성: Project Manager, 분류모델 설계
 
 ## Getting Started
   * Install requirements

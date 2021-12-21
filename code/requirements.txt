@@ -1,0 +1,9 @@
+tqdm
+pandas
+elasticsearch
+pororo
+transformers
+nltk
+konlpy
+efficientnet_pytorch
+git+https://github.com/ssut/py-hanspell.git

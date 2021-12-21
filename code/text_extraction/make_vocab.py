@@ -72,7 +72,6 @@ ner = Pororo(task="ner", lang='ko')
 ner_vocab = []
 for sentence in tqdm(input_data): 
     
-    # sentence = data.iloc[i].title + ' ' + data.iloc[i].description
     sentence_re = ' '.join(re.sub('[^A-Za-z0-9가-힣,/-:]', ' ', sentence).split(' '))
     
     pos_tag = ner(sentence_re[:500])

@@ -1,12 +1,12 @@
 # 당신도 중고 거래왕이 될 수 있습니다!
 
 ## Table of Contents
-  1. [Members](##Members)
-  2. [Project Overview](##Project-Overview)
-  3. [Getting Started](##Getting-Started)
-  4. [Hardware](##Hardware)
-  5. [Code Structure](##Code-Structure)
-  6. [Detail](##Detail)
+  1. [Members](#Members)
+  2. [Project Overview](#Project-Overview)
+  3. [Getting Started](#Getting-Started)
+  4. [Hardware](#Hardware)
+  5. [Code Structure](#Code-Structure)
+  6. [Detail](#Detail)
 
 ## Members
 

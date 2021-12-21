@@ -96,11 +96,12 @@ The following specs were used to create the original solution.
 ```
 ## Detail
   * 멀티모달 분류모델을 활용하여 입력된 상품 이미지와 제목으로 카테고리 분류
-    * 1
-    * 2
-    * 3
+    * 사용자가 제공한 이미지와 상품 제목을 각각 분류 후 Soft Voting을 통한 카테고리 분류
+    ![classification](https://user-images.githubusercontent.com/60460317/146878954-899af65a-cf84-4a80-a4d8-66919c3cd4d6.png)
     
   * 생성/추출모델을 통해 상품 노출 빈도를 높일 수 있는 해시태그 생성
-    * 1
-    * 2
-    * 3
+    * TF-IDF 빈도수 계산 및 Elastic Search를 이용한 본문 내 해시태그 추출
+    * GPT-2를 기반으로 실제 약 10만개의 제목, 본문, 해시태그를 학습한 fine-tuned 모델을 이용한 해시태그 생성
+    ![Generation](https://user-images.githubusercontent.com/60460317/146879619-351fc70e-5a6b-44ad-86dc-d0159e20d345.png)
+  
+  * 시연영상: [YouTube](https://www.youtube.com/watch?v=WfUuFHdTCxY)

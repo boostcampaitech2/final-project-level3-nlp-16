@@ -113,4 +113,4 @@ The following specs were used to create the original solution.
     * GPT-2를 기반으로 실제 약 10만개의 제목, 본문, 해시태그를 학습한 fine-tuned 모델을 이용한 해시태그 생성
     ![Hashtag](https://user-images.githubusercontent.com/60460317/146884272-25620910-08e0-4d08-bdb4-1b41c64a6cf3.png)
   
-  * 시연영상: [YouTube](https://www.youtube.com/watch?v=WfUuFHdTCxY)
+  * 시연영상: [YouTube](https://www.youtube.com/watch?v=bVwvSa7A3RA)

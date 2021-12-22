@@ -6,4 +6,7 @@ transformers
 nltk
 konlpy
 efficientnet_pytorch
+wandb
+streamlit
+streamlit-lottie
 git+https://github.com/ssut/py-hanspell.git

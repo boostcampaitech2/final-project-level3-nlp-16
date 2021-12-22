@@ -1,6 +1,8 @@
 import pandas as pd
 import re
 
+from requests.models import HTTPBasicAuth
+
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import time
 
@@ -58,8 +60,13 @@ def inference(input_ids, max_len, model, tokenizer):
         top_p=0.5,
     )
 
-    decode_output = tokenizer.decode(output_sequence[0], skip_special_tokens=True)
-    decode_output = decode_output[max_len + 1 :]
+    decode_output = tokenizer.decode(output_sequence[0], skip_special_tokens=False)
+    sep_match = re.finditer("<sep>", decode_output)
+    next(sep_match)
+    hashtag_start_idx = next(sep_match).end()
+    hashtag_end_idx = re.search("</s>", decode_output).start()
+
+    decode_output = decode_output[hashtag_start_idx:hashtag_end_idx].strip()
     decode_output = decode_output.split(",")
     decode_output = list(set(decode_output))
     decode_output = list(filter(None, decode_output))

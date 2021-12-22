@@ -100,13 +100,6 @@ if st.button("해시태그 생성"):
 
     output.extend(extraction_tag[:3])
     print('extraction_tag ', extraction_tag)
-            
-    # tokenizer = AutoTokenizer.from_pretrained(
-    #     "nlprime/hash-tag-generator-small",use_auth_token=True
-    # )
-    # model = AutoModelForCausalLM.from_pretrained(
-    #     "nlprime/hash-tag-generator-small",use_auth_token=True
-    # )
 
     ids,max_len = cleaning(title, content, st.session_state.tokenizer)
     generation = inference(ids, max_len, st.session_state.model, st.session_state.tokenizer)
@@ -121,25 +114,15 @@ add_hashtag = st.text_input("추가로 입력할 해시태그를 적어주세요
 
 output_str = ''
 print(st.session_state.output)
-for file in st.session_state.output:
+for file in set(st.session_state.output):
     print(file)
     check_boxes = st.checkbox('#' + file)
     if check_boxes:
-        # output_str = '#' + file
         output_str += '#' + file + ' '
 
 if add_hashtag:
     for add_tag in add_hashtag.split(' '):
-        # output_str += '#' + add_tag
         output_str += '#' + add_tag + ' '
-        # st.write('#' + add_tag, end = ' ')
 
 st.write(output_str)
-
-# for t in test:
-#     output_str += '#' + t + ' '
-#     # st.write('#' + t, end = ' ')
 print(output_str)
-
-# for tag in output_str.split(' '):
-#     st.write('#' + tag)

@@ -73,7 +73,7 @@ The following specs were used to create the original solution.
 │   │   
 │   ├── prototype
 │   │   ├── models/mmclf
-│   │   │   ├── best.py
+│   │   │   ├── best.pt
 │   │   │   ├── config.yaml
 │   │   │   ├── mmclf.py
 │   │   │   ├── special_tokens_map.json

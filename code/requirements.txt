@@ -1,5 +1,6 @@
 tqdm
 pandas
+sklearn
 elasticsearch
 pororo
 transformers

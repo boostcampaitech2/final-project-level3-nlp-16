@@ -25,7 +25,7 @@
     2. Elastic Search 와 TF-IDF를 이용한 HashTag 추출모델
     3. [skt/kogpt-base-v2](https://github.com/SKT-AI/KoGPT2)를 기반한 데이터 fine-tuned HashTag 생성모델
   * Data
-    * 번개장터 crawling 데이터 (분야 : 전가기기)
+    * 번개장터 crawling 데이터 (분야 : 전자기기)
 
   * Contributors
     * 김아경: 추출모델설계, Text 데이터 전처리
